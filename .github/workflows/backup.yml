@@ -1,0 +1,41 @@
+name: نسخ احتياطي لقاعدة البيانات
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # يومياً 02:00 UTC = 05:00 صباحاً بتوقيت سوريا
+  workflow_dispatch:        # زر "Run workflow" للتشغيل اليدوي
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: أخذ نسخة احتياطية (PostgreSQL 17)
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$DB_URL" ]; then
+            echo "خطأ: السرّ SUPABASE_DB_URL غير مضبوط. أضِفه من إعدادات المستودع (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+          STAMP=$(date +%Y-%m-%d_%H-%M)
+          docker run --rm \
+            -e DB_URL="$DB_URL" \
+            -e STAMP="$STAMP" \
+            -v "$PWD":/backup \
+            --entrypoint bash \
+            postgres:17 \
+            -c 'pg_dump "$DB_URL" --schema=public --no-owner --no-privileges -Fc -f "/backup/backup_${STAMP}.dump"'
+          echo "حجم النسخة:"
+          ls -lh backup_*.dump
+          if [ ! -s backup_*.dump ]; then
+            echo "خطأ: ملف النسخة فارغ."
+            exit 1
+          fi
+
+      - name: رفع النسخة (تُحفظ 90 يوماً)
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_number }}
+          path: backup_*.dump
+          retention-days: 90
+          if-no-files-found: error

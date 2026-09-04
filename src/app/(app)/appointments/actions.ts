@@ -29,3 +29,9 @@ export async function addAppointment(_prevState: { error: string } | null, formD
   revalidatePath("/appointments");
   return null;
 }
+
+export async function updateAppointmentStatus(appointmentId: string, status: string) {
+  const supabase = await createClient();
+  await supabase.from("appointments").update({ status }).eq("id", appointmentId);
+  revalidatePath("/appointments");
+}

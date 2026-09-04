@@ -1,13 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import AppointmentForm from "./AppointmentForm";
-
-const statusConfig: Record<string, { label: string; className: string }> = {
-  scheduled: { label: "مجدول", className: "border-primary text-primary-strong" },
-  confirmed: { label: "مؤكد", className: "border-accent text-accent" },
-  completed: { label: "منتهي", className: "border-ink-muted text-ink-muted" },
-  cancelled: { label: "ملغى", className: "border-danger text-danger" },
-  no_show: { label: "لم يحضر", className: "border-danger text-danger" },
-};
+import AppointmentStatusSelect from "./AppointmentStatusSelect";
 
 export default async function AppointmentsPage() {
   const supabase = await createClient();
@@ -44,10 +37,6 @@ export default async function AppointmentsPage() {
           <tbody>
             {appointments?.length ? (
               appointments.map((a) => {
-                const status = statusConfig[a.status] ?? {
-                  label: a.status,
-                  className: "border-ink-muted text-ink-muted",
-                };
                 return (
                   <tr key={a.id} className="border-t border-border">
                     <td className="px-4 py-2.5 text-ink">
@@ -60,11 +49,7 @@ export default async function AppointmentsPage() {
                       {new Date(a.end_time).toLocaleString("ar-SY")}
                     </td>
                     <td className="px-4 py-2.5">
-                      <span
-                        className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${status.className}`}
-                      >
-                        {status.label}
-                      </span>
+                      <AppointmentStatusSelect id={a.id} status={a.status} />
                     </td>
                   </tr>
                 );
