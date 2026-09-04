@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  /* paper: cool, clinical off-white — not the cream/terracotta default */
+  --bg: #f2f5f4;
+  --surface: #ffffff;
+  --surface-alt: #e9f0ee;
+  --ink: #12211d;
+  --ink-muted: #5c6d68;
+  --border: #dbe4e1;
+  /* deep clinical teal — structure, nav, primary actions */
+  --primary: #17594a;
+  --primary-strong: #0e4238;
+  --on-primary: #f4faf8;
+  /* muted amber — the one accent, spent sparingly (focus, highlights, active tab) */
+  --accent: #b8862f;
+  --on-accent: #221602;
+  /* muted brick — cancelled/no-show only, never decorative */
+  --danger: #a5432c;
+  --danger-bg: #f7e9e4;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --font-sans: var(--font-plex-arabic);
+  --font-mono: var(--font-plex-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+* {
+  border-color: var(--border);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
