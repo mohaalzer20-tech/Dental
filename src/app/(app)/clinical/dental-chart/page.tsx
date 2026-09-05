@@ -23,7 +23,7 @@ export default async function DentalChartPage({
 
   const [{ data: entries }, { data: patients }] = await Promise.all([
     entriesQuery,
-    supabase.from("patients").select("id, name").order("name"),
+    supabase.from("patients").select("id, name").is("deleted_at", null).order("name"),
   ]);
 
   const filteredPatientName = patient_id ? (patients ?? []).find((p) => p.id === patient_id)?.name : null;
@@ -51,10 +51,10 @@ export default async function DentalChartPage({
             <tr>
               <th className="px-4 py-2.5 font-medium">المريض</th>
               <th className="px-4 py-2.5 font-medium">السن</th>
-              <th className="px-4 py-2.5 font-medium">الحالة</th>
+              <th className="px-4 py-2.5 font-medium">حالة السن</th>
               <th className="px-4 py-2.5 font-medium">ملاحظات</th>
               <th className="px-4 py-2.5 font-medium">التاريخ</th>
-              <th className="px-4 py-2.5 font-medium">الحالة</th>
+              <th className="px-4 py-2.5 font-medium">حالة العلاج</th>
               <th className="px-4 py-2.5 font-medium"></th>
             </tr>
           </thead>

@@ -24,7 +24,7 @@ export default async function LabPage({
 
   const [{ data: orders }, { data: patients }, { data: vendors }, { data: treatmentRows }] = await Promise.all([
     ordersQuery,
-    supabase.from("patients").select("id, name").order("name"),
+    supabase.from("patients").select("id, name").is("deleted_at", null).order("name"),
     supabase.from("lab_vendors").select("id, name, phone").is("deleted_at", null).order("name"),
     supabase
       .from("treatments")

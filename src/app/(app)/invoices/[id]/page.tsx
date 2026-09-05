@@ -21,6 +21,7 @@ export default async function InvoiceDetailPage({
         "id, invoice_no, patient_id, subtotal, discount_amount, total_amount, paid_amount, status, notes, patients(id, name), users(id, full_name)",
       )
       .eq("id", id)
+      .is("deleted_at", null)
       .single(),
     supabase
       .from("invoice_items")
@@ -43,7 +44,11 @@ export default async function InvoiceDetailPage({
       .eq("patient_id", invoice.patient_id)
       .is("deleted_at", null)
       .order("performed_at", { ascending: false }),
-    supabase.from("invoice_items").select("treatment_id").not("treatment_id", "is", null),
+    supabase
+      .from("invoice_items")
+      .select("treatment_id, invoices!inner(deleted_at)")
+      .not("treatment_id", "is", null)
+      .is("invoices.deleted_at", null),
   ]);
 
   const billedTreatmentIds = new Set((billedTreatmentRows ?? []).map((r) => r.treatment_id));

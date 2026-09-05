@@ -70,9 +70,17 @@ export async function acceptTreatmentPlan(_prevState: { error: string } | null, 
   }
 
   const supabase = await createClient();
+
+  const { data: plan } = await supabase.from("treatment_plans").select("status").eq("id", planId).single();
+  const shouldAdvanceStatus = !plan || plan.status === "draft" || plan.status === "proposed";
+
   const { error } = await supabase
     .from("treatment_plans")
-    .update({ accepted_by_name: acceptedByName, accepted_at: new Date().toISOString(), status: "accepted" })
+    .update({
+      accepted_by_name: acceptedByName,
+      accepted_at: new Date().toISOString(),
+      ...(shouldAdvanceStatus ? { status: "accepted" } : {}),
+    })
     .eq("id", planId);
 
   if (error) {

@@ -21,7 +21,7 @@ export default async function TransactionsPage() {
       .select("id, type, quantity, previous_stock, new_stock, notes, transaction_date, inventory_items(name)")
       .order("transaction_date", { ascending: false })
       .limit(100),
-    supabase.from("inventory_items").select("id, name").order("name"),
+    supabase.from("inventory_items").select("id, name").is("deleted_at", null).order("name"),
   ]);
 
   return (

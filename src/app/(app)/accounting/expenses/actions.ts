@@ -13,8 +13,12 @@ export async function addExpense(_prevState: { error: string } | null, formData:
   const cashOrBankAccountId = String(formData.get("cash_or_bank_account_id") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
 
-  if (!category || !amount || !expenseAccountId || !cashOrBankAccountId) {
-    return { error: "الرجاء تعبئة الفئة والمبلغ وحساب المصروف وحساب الصرف" };
+  if (!category || !amount || amount <= 0 || !expenseAccountId || !cashOrBankAccountId) {
+    return { error: "الرجاء تعبئة الفئة ومبلغ أكبر من صفر وحساب المصروف وحساب الصرف" };
+  }
+
+  if (expenseAccountId === cashOrBankAccountId) {
+    return { error: "حساب المصروف وحساب الصرف لازم يكونوا مختلفين" };
   }
 
   const supabase = await createClient();
@@ -52,7 +56,14 @@ export async function addExpense(_prevState: { error: string } | null, formData:
     return { error: "تم تسجيل المصروف لكن تعذر ترحيله محاسبياً: " + postError.message };
   }
 
-  await supabase.from("expenses").update({ journal_entry_id: entryId }).eq("id", expense.id);
+  const { error: linkError } = await supabase
+    .from("expenses")
+    .update({ journal_entry_id: entryId })
+    .eq("id", expense.id);
+
+  if (linkError) {
+    return { error: "تم ترحيل المصروف محاسبياً لكن تعذر ربط القيد بالمصروف: " + linkError.message };
+  }
 
   revalidatePath("/accounting/expenses");
   revalidatePath("/accounting/journal");

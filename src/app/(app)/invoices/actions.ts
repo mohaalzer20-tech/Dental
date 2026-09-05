@@ -93,14 +93,30 @@ export async function addPayment(_prevState: { error: string } | null, formData:
 
 export async function updateDiscount(invoiceId: string, discount: number) {
   const supabase = await createClient();
-  await supabase.from("invoices").update({ discount_amount: discount }).eq("id", invoiceId);
-  await supabase.rpc("recompute_invoice", { p_invoice_id: invoiceId });
+  const { error: updateError } = await supabase
+    .from("invoices")
+    .update({ discount_amount: discount })
+    .eq("id", invoiceId);
+  if (updateError) {
+    throw new Error("تعذر تحديث الخصم: " + updateError.message);
+  }
+
+  const { error: recomputeError } = await supabase.rpc("recompute_invoice", { p_invoice_id: invoiceId });
+  if (recomputeError) {
+    throw new Error("تعذر إعادة احتساب الفاتورة: " + recomputeError.message);
+  }
+
   revalidatePath(`/invoices/${invoiceId}`);
 }
 
 export async function deleteInvoice(id: string) {
   const supabase = await createClient();
-  await supabase.from("invoices").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  const { error } = await supabase.from("invoices").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+
+  if (error) {
+    throw new Error("تعذر حذف الفاتورة: " + error.message);
+  }
+
   revalidatePath("/invoices");
   redirect("/invoices");
 }
@@ -116,10 +132,17 @@ export async function deletePayment(paymentId: string, invoiceId: string) {
     .maybeSingle();
 
   if (linkedEntry) {
-    await supabase.rpc("reverse_journal_entry", { p_entry_id: linkedEntry.id });
+    const { error: reverseError } = await supabase.rpc("reverse_journal_entry", { p_entry_id: linkedEntry.id });
+    if (reverseError) {
+      throw new Error("تعذر عكس القيد المحاسبي، لم يتم حذف الدفعة: " + reverseError.message);
+    }
   }
 
-  await supabase.from("payments").delete().eq("id", paymentId);
+  const { error: deleteError } = await supabase.from("payments").delete().eq("id", paymentId);
+  if (deleteError) {
+    throw new Error("تعذر حذف الدفعة: " + deleteError.message);
+  }
+
   revalidatePath(`/invoices/${invoiceId}`);
   revalidatePath("/accounting/journal");
 }

@@ -21,8 +21,8 @@ export default function DeleteButton({
       disabled={pending}
       onClick={() => {
         if (!window.confirm(confirmMessage)) return;
-        startTransition(() => {
-          action();
+        startTransition(async () => {
+          await action();
         });
       }}
       className={

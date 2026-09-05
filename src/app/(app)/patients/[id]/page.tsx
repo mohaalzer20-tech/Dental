@@ -4,6 +4,7 @@ import { deletePatient } from "../actions";
 import DeleteButton from "@/components/DeleteButton";
 import PatientEditForm from "./PatientEditForm";
 import PaymentReminderToggle from "./PaymentReminderToggle";
+import { conditionLabels } from "../../clinical/conditionLabels";
 
 const appointmentStatusLabels: Record<string, string> = {
   pending: "بانتظار التأكيد",
@@ -35,19 +36,6 @@ const labStatusLabels: Record<string, string> = {
   in_progress: "قيد التنفيذ",
   received: "تم الاستلام",
   cancelled: "ملغى",
-};
-
-const conditionLabels: Record<string, string> = {
-  healthy: "سليم",
-  caries: "تسوس",
-  filled: "حشوة",
-  crown: "تاج",
-  bridge: "جسر",
-  implant: "زراعة",
-  root_canal: "علاج عصب",
-  extraction: "خلع",
-  missing: "مفقود",
-  fractured: "كسر",
 };
 
 export default async function PatientProfilePage({ params }: { params: Promise<{ id: string }> }) {

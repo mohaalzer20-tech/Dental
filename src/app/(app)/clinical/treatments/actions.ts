@@ -53,6 +53,26 @@ export async function addTreatment(_prevState: { error: string } | null, formDat
 
 export async function deleteTreatment(id: string) {
   const supabase = await createClient();
+
+  const { data: treatment } = await supabase
+    .from("treatments")
+    .select("treatment_plan_item_id, chart_entry_id")
+    .eq("id", id)
+    .single();
+
   await supabase.from("treatments").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+
+  if (treatment?.treatment_plan_item_id) {
+    await supabase
+      .from("treatment_plan_items")
+      .update({ status: "pending" })
+      .eq("id", treatment.treatment_plan_item_id);
+  }
+  if (treatment?.chart_entry_id) {
+    await supabase.from("dental_chart_entries").update({ resolved_date: null }).eq("id", treatment.chart_entry_id);
+  }
+
   revalidatePath("/clinical/treatments");
+  revalidatePath("/clinical/treatment-plans");
+  revalidatePath("/clinical/dental-chart");
 }

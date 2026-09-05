@@ -10,6 +10,7 @@ export default function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
+  const latestQueryRef = useRef("");
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -26,8 +27,11 @@ export default function GlobalSearch() {
       return;
     }
     const timeout = setTimeout(() => {
+      const requestedQuery = query;
+      latestQueryRef.current = requestedQuery;
       startTransition(async () => {
-        const r = await searchGlobal(query);
+        const r = await searchGlobal(requestedQuery);
+        if (latestQueryRef.current !== requestedQuery) return;
         setResults(r);
         setOpen(true);
       });

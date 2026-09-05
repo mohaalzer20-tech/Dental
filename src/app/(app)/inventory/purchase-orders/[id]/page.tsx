@@ -11,12 +11,17 @@ export default async function PODetailPage({
   const supabase = await createClient();
 
   const [{ data: po }, { data: items }, { data: inventoryItems }] = await Promise.all([
-    supabase.from("purchase_orders").select("id, status, total_amount, suppliers(id, name)").eq("id", id).single(),
+    supabase
+      .from("purchase_orders")
+      .select("id, status, total_amount, suppliers(id, name)")
+      .eq("id", id)
+      .is("deleted_at", null)
+      .single(),
     supabase
       .from("purchase_order_items")
       .select("id, quantity, unit_price, amount, inventory_items(name)")
       .eq("purchase_order_id", id),
-    supabase.from("inventory_items").select("id, name").order("name"),
+    supabase.from("inventory_items").select("id, name").is("deleted_at", null).order("name"),
   ]);
 
   if (!po) {

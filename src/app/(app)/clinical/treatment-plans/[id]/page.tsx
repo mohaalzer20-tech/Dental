@@ -25,12 +25,13 @@ export default async function TreatmentPlanDetailPage({
       .from("treatment_plans")
       .select("id, title, notes, status, accepted_at, accepted_by_name, patients(id, name)")
       .eq("id", id)
+      .is("deleted_at", null)
       .single(),
     supabase
       .from("treatment_plan_items")
       .select("id, tooth_numbers, estimated_cost, status, procedures(name)")
       .eq("treatment_plan_id", id),
-    supabase.from("procedures").select("id, name").order("name"),
+    supabase.from("procedures").select("id, name").is("deleted_at", null).order("name"),
   ]);
 
   if (!plan) {

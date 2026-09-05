@@ -32,7 +32,7 @@ export default async function TreatmentsPage({
     { data: chartEntryRows },
   ] = await Promise.all([
     treatmentsQuery,
-    supabase.from("patients").select("id, name").order("name"),
+    supabase.from("patients").select("id, name").is("deleted_at", null).order("name"),
     supabase.from("procedures").select("id, name").is("deleted_at", null).order("name"),
     supabase.from("users").select("id, full_name").order("full_name"),
     supabase
@@ -42,8 +42,9 @@ export default async function TreatmentsPage({
       .order("start_time", { ascending: false }),
     supabase
       .from("treatment_plan_items")
-      .select("id, procedures(name), treatment_plans(patient_id, title)")
-      .in("status", ["pending", "scheduled", "in_progress"]),
+      .select("id, procedures(name), treatment_plans!inner(patient_id, title, deleted_at)")
+      .in("status", ["pending", "scheduled", "in_progress"])
+      .is("treatment_plans.deleted_at", null),
     supabase
       .from("dental_chart_entries")
       .select("id, patient_id, tooth_number, condition")

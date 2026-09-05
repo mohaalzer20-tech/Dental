@@ -22,7 +22,7 @@ export default async function PurchaseOrdersPage() {
       .select("id, order_number, status, total_amount, order_date, suppliers(id, name)")
       .is("deleted_at", null)
       .order("order_date", { ascending: false }),
-    supabase.from("suppliers").select("id, name").order("name"),
+    supabase.from("suppliers").select("id, name").is("deleted_at", null).order("name"),
   ]);
 
   return (

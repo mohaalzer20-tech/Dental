@@ -23,7 +23,7 @@ export default async function AppointmentsPage({
 
   const [{ data: appointments }, { data: patients }] = await Promise.all([
     appointmentsQuery,
-    supabase.from("patients").select("id, name").order("name"),
+    supabase.from("patients").select("id, name").is("deleted_at", null).order("name"),
   ]);
 
   const filteredPatientName = patient_id

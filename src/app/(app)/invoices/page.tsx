@@ -28,7 +28,7 @@ export default async function InvoicesPage({
 
   const [{ data: invoices }, { data: patients }, { data: providers }] = await Promise.all([
     invoicesQuery,
-    supabase.from("patients").select("id, name").order("name"),
+    supabase.from("patients").select("id, name").is("deleted_at", null).order("name"),
     supabase.from("users").select("id, full_name").order("full_name"),
   ]);
 

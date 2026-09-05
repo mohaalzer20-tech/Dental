@@ -21,7 +21,7 @@ export default async function PrescriptionsPage({
 
   const [{ data: prescriptions }, { data: patients }] = await Promise.all([
     prescriptionsQuery,
-    supabase.from("patients").select("id, name").order("name"),
+    supabase.from("patients").select("id, name").is("deleted_at", null).order("name"),
   ]);
 
   const filteredPatientName = patient_id ? (patients ?? []).find((p) => p.id === patient_id)?.name : null;

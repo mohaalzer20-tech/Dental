@@ -11,7 +11,12 @@ export default async function PrescriptionDetailPage({
   const supabase = await createClient();
 
   const [{ data: prescription }, { data: items }] = await Promise.all([
-    supabase.from("prescriptions").select("id, diagnosis, notes, patients(id, name)").eq("id", id).single(),
+    supabase
+      .from("prescriptions")
+      .select("id, diagnosis, notes, patients(id, name)")
+      .eq("id", id)
+      .is("deleted_at", null)
+      .single(),
     supabase.from("prescription_items").select("id, medication_name, dosage, frequency, duration").eq("prescription_id", id),
   ]);
 

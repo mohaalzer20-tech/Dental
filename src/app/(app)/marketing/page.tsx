@@ -27,7 +27,7 @@ export default async function MarketingPage() {
       .select("id, channel, body, status, created_at, patients(id, name)")
       .order("created_at", { ascending: false })
       .limit(50),
-    supabase.from("patients").select("id, name").order("name"),
+    supabase.from("patients").select("id, name").is("deleted_at", null).order("name"),
   ]);
 
   return (

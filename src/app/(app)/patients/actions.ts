@@ -59,7 +59,12 @@ export async function updatePatient(_prevState: { error: string } | null, formDa
 
 export async function deletePatient(id: string) {
   const supabase = await createClient();
-  await supabase.from("patients").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  const { error } = await supabase.from("patients").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+
+  if (error) {
+    throw new Error("تعذر حذف المريض: " + error.message);
+  }
+
   revalidatePath("/patients");
   redirect("/patients");
 }
