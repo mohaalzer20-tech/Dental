@@ -2,20 +2,9 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import DeleteButton from "@/components/DeleteButton";
 import ChartForm from "./ChartForm";
-import { deleteChartEntry } from "./actions";
-
-const conditionLabels: Record<string, string> = {
-  healthy: "سليم",
-  caries: "تسوس",
-  filled: "حشوة",
-  crown: "تاج",
-  bridge: "جسر",
-  implant: "زراعة",
-  root_canal: "علاج عصب",
-  extraction: "خلع",
-  missing: "مفقود",
-  fractured: "كسر",
-};
+import { deleteChartEntry, resolveChartEntry } from "./actions";
+import ResolveButton from "./ResolveButton";
+import { conditionLabels } from "../conditionLabels";
 
 export default async function DentalChartPage({
   searchParams,
@@ -27,7 +16,7 @@ export default async function DentalChartPage({
 
   let entriesQuery = supabase
     .from("dental_chart_entries")
-    .select("id, tooth_number, condition, notes, diagnosed_date, patients(id, name)")
+    .select("id, tooth_number, condition, notes, diagnosed_date, resolved_date, patients(id, name)")
     .is("deleted_at", null)
     .order("diagnosed_date", { ascending: false });
   if (patient_id) entriesQuery = entriesQuery.eq("patient_id", patient_id);
@@ -65,6 +54,7 @@ export default async function DentalChartPage({
               <th className="px-4 py-2.5 font-medium">الحالة</th>
               <th className="px-4 py-2.5 font-medium">ملاحظات</th>
               <th className="px-4 py-2.5 font-medium">التاريخ</th>
+              <th className="px-4 py-2.5 font-medium">الحالة</th>
               <th className="px-4 py-2.5 font-medium"></th>
             </tr>
           </thead>
@@ -72,6 +62,7 @@ export default async function DentalChartPage({
             {entries?.length ? (
               entries.map((e) => {
                 const patient = e.patients as unknown as { id?: string; name: string } | null;
+                const resolved = !!e.resolved_date;
                 return (
                   <tr key={e.id} className="border-t border-border">
                     <td className="px-4 py-2.5 text-ink">
@@ -88,14 +79,26 @@ export default async function DentalChartPage({
                     <td className="px-4 py-2.5 text-ink-muted">{e.notes ?? "—"}</td>
                     <td className="px-4 py-2.5 font-mono text-ink-muted">{e.diagnosed_date}</td>
                     <td className="px-4 py-2.5">
-                      <DeleteButton action={deleteChartEntry.bind(null, e.id)} />
+                      <span
+                        className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+                          resolved ? "border-primary text-primary-strong" : "border-accent text-accent"
+                        }`}
+                      >
+                        {resolved ? `تم العلاج (${e.resolved_date})` : "نشط"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <div className="flex gap-2">
+                        {!resolved && <ResolveButton action={resolveChartEntry.bind(null, e.id)} />}
+                        <DeleteButton action={deleteChartEntry.bind(null, e.id)} />
+                      </div>
                     </td>
                   </tr>
                 );
               })
             ) : (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-ink-muted">
+                <td colSpan={7} className="px-4 py-8 text-center text-ink-muted">
                   ما في سجلات بعد
                 </td>
               </tr>

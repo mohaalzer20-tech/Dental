@@ -17,18 +17,32 @@ export default async function LabPage({
 
   let ordersQuery = supabase
     .from("lab_orders")
-    .select("id, description, status, cost, sent_date, patients(id, name), lab_vendors(name)")
+    .select("id, description, status, cost, sent_date, patients(id, name), lab_vendors(name), treatments(diagnosis, procedures(name))")
     .is("deleted_at", null)
     .order("sent_date", { ascending: false });
   if (patient_id) ordersQuery = ordersQuery.eq("patient_id", patient_id);
 
-  const [{ data: orders }, { data: patients }, { data: vendors }] = await Promise.all([
+  const [{ data: orders }, { data: patients }, { data: vendors }, { data: treatmentRows }] = await Promise.all([
     ordersQuery,
     supabase.from("patients").select("id, name").order("name"),
     supabase.from("lab_vendors").select("id, name, phone").is("deleted_at", null).order("name"),
+    supabase
+      .from("treatments")
+      .select("id, patient_id, diagnosis, performed_at, procedures(name)")
+      .is("deleted_at", null)
+      .order("performed_at", { ascending: false }),
   ]);
 
   const filteredPatientName = patient_id ? (patients ?? []).find((p) => p.id === patient_id)?.name : null;
+
+  const treatments = (treatmentRows ?? []).map((t) => {
+    const procedure = t.procedures as unknown as { name: string } | null;
+    return {
+      id: t.id,
+      patient_id: t.patient_id,
+      label: `${procedure?.name ?? t.diagnosis ?? "معالجة"} — ${new Date(t.performed_at).toLocaleDateString("ar-SY")}`,
+    };
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -45,7 +59,7 @@ export default async function LabPage({
         )}
       </div>
 
-      <LabOrderForm patients={patients ?? []} vendors={vendors ?? []} />
+      <LabOrderForm patients={patients ?? []} vendors={vendors ?? []} treatments={treatments} />
       <VendorForm />
 
       <div className="overflow-hidden rounded-xl border border-border bg-surface">
@@ -78,7 +92,17 @@ export default async function LabPage({
                     <td className="px-4 py-2.5 text-ink-muted">
                       {(o.lab_vendors as unknown as { name: string } | null)?.name ?? "—"}
                     </td>
-                    <td className="px-4 py-2.5 text-ink-muted">{o.description ?? "—"}</td>
+                    <td className="px-4 py-2.5 text-ink-muted">
+                      {o.description ?? "—"}
+                      {(() => {
+                        const treatment = o.treatments as unknown as { procedures: { name: string } | null } | null;
+                        return treatment?.procedures ? (
+                          <span className="mr-2 rounded-full border border-border px-2 py-0.5 text-xs text-ink-muted">
+                            {treatment.procedures.name}
+                          </span>
+                        ) : null;
+                      })()}
+                    </td>
                     <td className="px-4 py-2.5 font-mono text-ink-muted">{o.cost}</td>
                     <td className="px-4 py-2.5">
                       <StatusSelect orderId={o.id} status={o.status} />

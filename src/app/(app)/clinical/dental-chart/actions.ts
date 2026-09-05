@@ -47,3 +47,13 @@ export async function deleteChartEntry(id: string) {
   await supabase.from("dental_chart_entries").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   revalidatePath("/clinical/dental-chart");
 }
+
+export async function resolveChartEntry(id: string) {
+  const supabase = await createClient();
+  await supabase
+    .from("dental_chart_entries")
+    .update({ resolved_date: new Date().toISOString().slice(0, 10) })
+    .eq("id", id);
+  revalidatePath("/clinical/dental-chart");
+  revalidatePath("/clinical/treatments");
+}

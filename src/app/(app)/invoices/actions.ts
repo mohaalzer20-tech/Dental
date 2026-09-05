@@ -39,6 +39,7 @@ export async function addInvoiceItem(_prevState: { error: string } | null, formD
   const description = String(formData.get("description") ?? "").trim();
   const quantity = Number(formData.get("quantity") ?? 1);
   const unitPrice = Number(formData.get("unit_price") ?? 0);
+  const treatmentId = String(formData.get("treatment_id") ?? "") || null;
 
   if (!description || !unitPrice) {
     return { error: "الرجاء تعبئة الوصف والسعر" };
@@ -48,6 +49,7 @@ export async function addInvoiceItem(_prevState: { error: string } | null, formD
 
   const { error } = await supabase.from("invoice_items").insert({
     invoice_id: invoiceId,
+    treatment_id: treatmentId,
     description,
     quantity: quantity || 1,
     unit_price: unitPrice,

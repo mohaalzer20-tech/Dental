@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useEffect } from "react";
+import { useRef, useState, useTransition } from "react";
 import { addLabOrder } from "./actions";
 
 const inputClass =
@@ -8,20 +8,48 @@ const inputClass =
 
 type Patient = { id: string; name: string };
 type Vendor = { id: string; name: string };
+type Treatment = { id: string; patient_id: string; label: string };
 
-export default function LabOrderForm({ patients, vendors }: { patients: Patient[]; vendors: Vendor[] }) {
-  const [state, formAction, pending] = useActionState(addLabOrder, null);
+export default function LabOrderForm({
+  patients,
+  vendors,
+  treatments,
+}: {
+  patients: Patient[];
+  vendors: Vendor[];
+  treatments: Treatment[];
+}) {
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+  const [patientId, setPatientId] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    if (state === null) formRef.current?.reset();
-  }, [state]);
+  function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      const result = await addLabOrder(null, formData);
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        setError(null);
+        formRef.current?.reset();
+        setPatientId("");
+      }
+    });
+  }
+
+  const patientTreatments = treatments.filter((t) => t.patient_id === patientId);
 
   return (
-    <form ref={formRef} action={formAction} className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-5">
+    <form ref={formRef} action={handleSubmit} className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-5">
       <h2 className="text-sm font-semibold text-ink">إرسال أمر للمخبر</h2>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-        <select name="patient_id" required defaultValue="" className={inputClass}>
+        <select
+          name="patient_id"
+          required
+          value={patientId}
+          onChange={(e) => setPatientId(e.target.value)}
+          className={inputClass}
+        >
           <option value="" disabled>
             المريض
           </option>
@@ -39,10 +67,18 @@ export default function LabOrderForm({ patients, vendors }: { patients: Patient[
             </option>
           ))}
         </select>
+        <select name="treatment_id" defaultValue="" disabled={!patientId} className={inputClass}>
+          <option value="">بدون معالجة محددة</option>
+          {patientTreatments.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.label}
+            </option>
+          ))}
+        </select>
         <input name="description" type="text" placeholder="الوصف (تاج، جسر...)" className={inputClass} />
         <input name="cost" type="number" step="0.01" placeholder="التكلفة" className={inputClass} />
       </div>
-      {state?.error && <p className="text-sm text-danger">{state.error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       <button
         type="submit"
         disabled={pending}

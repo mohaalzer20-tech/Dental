@@ -17,10 +17,15 @@ export default async function InvoiceDetailPage({
   const [{ data: invoice }, { data: items }, { data: payments }] = await Promise.all([
     supabase
       .from("invoices")
-      .select("id, invoice_no, subtotal, discount_amount, total_amount, paid_amount, status, notes, patients(id, name), users(id, full_name)")
+      .select(
+        "id, invoice_no, patient_id, subtotal, discount_amount, total_amount, paid_amount, status, notes, patients(id, name), users(id, full_name)",
+      )
       .eq("id", id)
       .single(),
-    supabase.from("invoice_items").select("id, description, quantity, unit_price, amount").eq("invoice_id", id),
+    supabase
+      .from("invoice_items")
+      .select("id, description, quantity, unit_price, amount, treatment_id")
+      .eq("invoice_id", id),
     supabase.from("payments").select("id, amount, method, paid_at, notes").eq("invoice_id", id).order("paid_at", { ascending: false }),
   ]);
 
@@ -30,6 +35,28 @@ export default async function InvoiceDetailPage({
 
   const patient = invoice.patients as unknown as { id: string; name: string } | null;
   const provider = invoice.users as unknown as { id: string; full_name: string } | null;
+
+  const [{ data: patientTreatments }, { data: billedTreatmentRows }] = await Promise.all([
+    supabase
+      .from("treatments")
+      .select("id, diagnosis, cost, performed_at, procedures(name)")
+      .eq("patient_id", invoice.patient_id)
+      .is("deleted_at", null)
+      .order("performed_at", { ascending: false }),
+    supabase.from("invoice_items").select("treatment_id").not("treatment_id", "is", null),
+  ]);
+
+  const billedTreatmentIds = new Set((billedTreatmentRows ?? []).map((r) => r.treatment_id));
+  const availableTreatments = (patientTreatments ?? [])
+    .filter((t) => !billedTreatmentIds.has(t.id))
+    .map((t) => {
+      const procedure = t.procedures as unknown as { name: string } | null;
+      return {
+        id: t.id,
+        cost: Number(t.cost) || 0,
+        label: `${procedure?.name ?? t.diagnosis ?? "معالجة"} — ${new Date(t.performed_at).toLocaleDateString("ar-SY")}`,
+      };
+    });
 
   return (
     <div className="flex flex-col gap-6">
@@ -91,7 +118,14 @@ export default async function InvoiceDetailPage({
           <tbody>
             {items?.map((it) => (
               <tr key={it.id} className="border-t border-border">
-                <td className="py-2 text-ink">{it.description}</td>
+                <td className="py-2 text-ink">
+                  {it.description}
+                  {it.treatment_id && (
+                    <span className="mr-2 rounded-full border border-border px-2 py-0.5 text-xs text-ink-muted">
+                      من معالجة
+                    </span>
+                  )}
+                </td>
                 <td className="py-2 font-mono text-ink-muted">{it.quantity}</td>
                 <td className="py-2 font-mono text-ink-muted">{it.unit_price}</td>
                 <td className="py-2 font-mono text-ink-muted">{it.amount}</td>
@@ -100,7 +134,7 @@ export default async function InvoiceDetailPage({
           </tbody>
         </table>
         <div className="mt-4 border-t border-border pt-4">
-          <ItemForm invoiceId={id} />
+          <ItemForm invoiceId={id} treatments={availableTreatments} />
         </div>
       </div>
 

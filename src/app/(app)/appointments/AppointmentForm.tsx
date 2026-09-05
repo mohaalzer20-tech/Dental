@@ -40,6 +40,10 @@ export default function AppointmentForm({ patients }: { patients: Patient[] }) {
         <input name="notes" type="text" placeholder="ملاحظات" className={inputClass} />
         <input name="start_time" type="datetime-local" required className={inputClass} />
         <input name="end_time" type="datetime-local" required className={inputClass} />
+        <label className="flex flex-col gap-1 text-xs text-ink-muted">
+          تاريخ المتابعة (اختياري)
+          <input name="recall_date" type="date" className={inputClass} />
+        </label>
       </div>
 
       {state?.error && <p className="text-sm text-danger">{state.error}</p>}

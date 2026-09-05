@@ -25,6 +25,7 @@ export async function addLabVendor(_prevState: { error: string } | null, formDat
 export async function addLabOrder(_prevState: { error: string } | null, formData: FormData) {
   const patientId = String(formData.get("patient_id") ?? "").trim();
   const labVendorId = String(formData.get("lab_vendor_id") ?? "") || null;
+  const treatmentId = String(formData.get("treatment_id") ?? "") || null;
   const description = String(formData.get("description") ?? "").trim();
   const cost = Number(formData.get("cost") ?? 0);
 
@@ -36,6 +37,7 @@ export async function addLabOrder(_prevState: { error: string } | null, formData
   const { error } = await supabase.from("lab_orders").insert({
     patient_id: patientId,
     lab_vendor_id: labVendorId,
+    treatment_id: treatmentId,
     description: description || null,
     cost: cost || 0,
   });

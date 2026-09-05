@@ -8,6 +8,7 @@ export async function addAppointment(_prevState: { error: string } | null, formD
   const startTime = String(formData.get("start_time") ?? "").trim();
   const endTime = String(formData.get("end_time") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
+  const recallDate = String(formData.get("recall_date") ?? "").trim();
 
   if (!patientId || !startTime || !endTime) {
     return { error: "الرجاء اختيار المريض ووقت البداية والنهاية" };
@@ -20,6 +21,7 @@ export async function addAppointment(_prevState: { error: string } | null, formD
     start_time: new Date(startTime).toISOString(),
     end_time: new Date(endTime).toISOString(),
     notes: notes || null,
+    recall_date: recallDate || null,
   });
 
   if (error) {
@@ -40,6 +42,16 @@ export async function deleteAppointment(id: string) {
   const supabase = await createClient();
   await supabase.from("appointments").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   revalidatePath("/appointments");
+}
+
+export async function updateRecallDate(id: string, recallDate: string) {
+  const supabase = await createClient();
+  await supabase
+    .from("appointments")
+    .update({ recall_date: recallDate || null, recall_completed: false })
+    .eq("id", id);
+  revalidatePath("/appointments");
+  revalidatePath("/follow-ups");
 }
 
 export async function markRecallCompleted(id: string) {

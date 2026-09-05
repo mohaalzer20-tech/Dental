@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import DeleteButton from "@/components/DeleteButton";
 import AppointmentForm from "./AppointmentForm";
 import AppointmentStatusSelect from "./AppointmentStatusSelect";
+import RecallDateInput from "./RecallDateInput";
 import { deleteAppointment } from "./actions";
 
 export default async function AppointmentsPage({
@@ -15,7 +16,7 @@ export default async function AppointmentsPage({
 
   let appointmentsQuery = supabase
     .from("appointments")
-    .select("id, start_time, end_time, status, notes, patients(id, name)")
+    .select("id, start_time, end_time, status, notes, recall_date, patients(id, name)")
     .is("deleted_at", null)
     .order("start_time", { ascending: true });
   if (patient_id) appointmentsQuery = appointmentsQuery.eq("patient_id", patient_id);
@@ -53,6 +54,7 @@ export default async function AppointmentsPage({
               <th className="px-4 py-2.5 font-medium">من</th>
               <th className="px-4 py-2.5 font-medium">إلى</th>
               <th className="px-4 py-2.5 font-medium">الحالة</th>
+              <th className="px-4 py-2.5 font-medium">تاريخ المتابعة</th>
               <th className="px-4 py-2.5 font-medium"></th>
             </tr>
           </thead>
@@ -81,6 +83,9 @@ export default async function AppointmentsPage({
                       <AppointmentStatusSelect id={a.id} status={a.status} />
                     </td>
                     <td className="px-4 py-2.5">
+                      <RecallDateInput id={a.id} recallDate={a.recall_date} />
+                    </td>
+                    <td className="px-4 py-2.5">
                       <DeleteButton action={deleteAppointment.bind(null, a.id)} />
                     </td>
                   </tr>
@@ -88,7 +93,7 @@ export default async function AppointmentsPage({
               })
             ) : (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-ink-muted">
+                <td colSpan={6} className="px-4 py-8 text-center text-ink-muted">
                   ما في مواعيد بعد — أضف أول موعد من النموذج فوق
                 </td>
               </tr>
