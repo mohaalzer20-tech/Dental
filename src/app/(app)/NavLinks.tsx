@@ -26,15 +26,28 @@ const groups: NavGroup[] = [
     ],
   },
   {
-    label: "الإداري والمالي",
+    label: "المالية والمحاسبة",
     items: [
       { href: "/invoices", label: "الفواتير", icon: ReceiptIcon },
+      { href: "/accounting", label: "نظرة عامة", icon: LedgerIcon },
+      { href: "/accounting/chart-of-accounts", label: "شجرة الحسابات", icon: LedgerIcon },
+      { href: "/accounting/journal", label: "القيود اليومية", icon: JournalIcon },
+      { href: "/accounting/expenses", label: "المصروفات", icon: ExpenseIcon },
+      { href: "/accounting/reports", label: "التقارير المالية", icon: ReportIcon },
+    ],
+  },
+  {
+    label: "الإدارة والتشغيل",
+    items: [
       { href: "/inventory", label: "المخزون", icon: BoxIcon },
       { href: "/staff", label: "الموظفون", icon: UserGearIcon },
       { href: "/marketing", label: "التسويق", icon: MegaphoneIcon },
-      { href: "/audit", label: "سجل التدقيق", icon: HistoryIcon },
       { href: "/settings", label: "الإعدادات", icon: SettingsIcon },
     ],
+  },
+  {
+    label: "الامتثال",
+    items: [{ href: "/audit", label: "سجل التدقيق", icon: HistoryIcon }],
   },
 ];
 
@@ -214,6 +227,43 @@ function SettingsIcon({ className }: { className?: string }) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className}>
       <circle cx="12" cy="12" r="3" />
       <path d="M12 3v2M12 19v2M21 12h-2M5 12H3M18.4 5.6l-1.4 1.4M7 15.9l-1.4 1.4M18.4 18.4l-1.4-1.4M7 8.1 5.6 6.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function LedgerIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className}>
+      <path d="M6 3h9l4 4v14H6z" strokeLinejoin="round" />
+      <path d="M15 3v4h4" strokeLinejoin="round" />
+      <path d="M9 12h7M9 16h7M9 8h3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function JournalIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className}>
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+      <path d="M8 9h3M13 9h3M8 15h8" strokeLinecap="round" />
+      <path d="M12 9v6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ExpenseIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5v9M14.5 9.5c0-1-1-1.7-2.5-1.7s-2.5.7-2.5 1.7 1 1.5 2.5 1.9 2.5 1 2.5 1.9-1 1.7-2.5 1.7-2.5-.7-2.5-1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ReportIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className}>
+      <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

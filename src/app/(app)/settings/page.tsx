@@ -1,10 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
+import AccountingSettingsForm from "./AccountingSettingsForm";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
-  const { data: practice } = await supabase.from("practices").select("id, doctor_name, email").single();
+  const [{ data: practice }, { data: accounts }] = await Promise.all([
+    supabase
+      .from("practices")
+      .select(
+        "id, doctor_name, email, currency, default_cash_account_id, default_bank_account_id, default_revenue_account_id",
+      )
+      .single(),
+    supabase.from("chart_of_accounts").select("id, code, name, type").eq("is_active", true).order("code"),
+  ]);
 
   const bookingPath = practice ? `/book/${practice.id}` : null;
+  const assetAccounts = (accounts ?? []).filter((a) => a.type === "asset");
+  const revenueAccounts = (accounts ?? []).filter((a) => a.type === "revenue");
 
   return (
     <div className="flex flex-col gap-6">
@@ -29,6 +40,18 @@ export default async function SettingsPage() {
         <h2 className="mb-2 text-sm font-semibold text-ink">بيانات العيادة</h2>
         <p className="text-sm text-ink-muted">الطبيب: {practice?.doctor_name}</p>
         <p className="text-sm text-ink-muted">البريد: {practice?.email}</p>
+      </div>
+
+      <div className="rounded-xl border border-border bg-surface p-5">
+        <h2 className="mb-3 text-sm font-semibold text-ink">إعدادات المحاسبة</h2>
+        <AccountingSettingsForm
+          currency={practice?.currency ?? "SYP"}
+          cashAccountId={practice?.default_cash_account_id ?? null}
+          bankAccountId={practice?.default_bank_account_id ?? null}
+          revenueAccountId={practice?.default_revenue_account_id ?? null}
+          assetAccounts={assetAccounts}
+          revenueAccounts={revenueAccounts}
+        />
       </div>
     </div>
   );
