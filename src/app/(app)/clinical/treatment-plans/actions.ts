@@ -33,6 +33,13 @@ export async function addPlanItem(_prevState: { error: string } | null, formData
   const toothNumbers = String(formData.get("tooth_numbers") ?? "").trim();
   const estimatedCost = Number(formData.get("estimated_cost") ?? 0);
 
+  if (!procedureId && !toothNumbers) {
+    return { error: "الرجاء اختيار الإجراء أو كتابة رقم السن" };
+  }
+  if (estimatedCost < 0) {
+    return { error: "التكلفة المقدّرة لا يمكن أن تكون سالبة" };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase.from("treatment_plan_items").insert({
     treatment_plan_id: planId,
