@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PatientForm from "./PatientForm";
 
@@ -7,6 +8,7 @@ export default async function PatientsPage() {
   const { data: patients } = await supabase
     .from("patients")
     .select("id, name, phone, dob, created_at")
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
   return (
@@ -33,7 +35,11 @@ export default async function PatientsPage() {
             {patients?.length ? (
               patients.map((p) => (
                 <tr key={p.id} className="border-t border-border">
-                  <td className="px-4 py-2.5 text-ink">{p.name}</td>
+                  <td className="px-4 py-2.5 text-ink">
+                    <Link href={`/patients/${p.id}`} className="underline underline-offset-2">
+                      {p.name}
+                    </Link>
+                  </td>
                   <td className="px-4 py-2.5 font-mono text-ink-muted">{p.phone ?? "—"}</td>
                   <td className="px-4 py-2.5 font-mono text-ink-muted">{p.dob ?? "—"}</td>
                 </tr>

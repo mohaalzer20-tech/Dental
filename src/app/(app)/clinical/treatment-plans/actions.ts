@@ -54,3 +54,31 @@ export async function updatePlanStatus(planId: string, status: string) {
   await supabase.from("treatment_plans").update({ status }).eq("id", planId);
   revalidatePath(`/clinical/treatment-plans/${planId}`);
 }
+
+export async function deleteTreatmentPlan(id: string) {
+  const supabase = await createClient();
+  await supabase.from("treatment_plans").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/clinical/treatment-plans");
+}
+
+export async function acceptTreatmentPlan(_prevState: { error: string } | null, formData: FormData) {
+  const planId = String(formData.get("treatment_plan_id") ?? "");
+  const acceptedByName = String(formData.get("accepted_by_name") ?? "").trim();
+
+  if (!acceptedByName) {
+    return { error: "الرجاء كتابة اسم الموافق" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("treatment_plans")
+    .update({ accepted_by_name: acceptedByName, accepted_at: new Date().toISOString(), status: "accepted" })
+    .eq("id", planId);
+
+  if (error) {
+    return { error: "تعذر تسجيل الموافقة: " + error.message };
+  }
+
+  revalidatePath(`/clinical/treatment-plans/${planId}`);
+  return null;
+}

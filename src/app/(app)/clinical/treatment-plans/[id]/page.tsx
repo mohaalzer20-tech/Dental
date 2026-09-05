@@ -1,5 +1,8 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PlanItemForm from "./PlanItemForm";
+import PlanStatusSelect from "./PlanStatusSelect";
+import PlanAcceptanceForm from "./PlanAcceptanceForm";
 
 const statusLabels: Record<string, string> = {
   pending: "قيد الانتظار",
@@ -18,7 +21,11 @@ export default async function TreatmentPlanDetailPage({
   const supabase = await createClient();
 
   const [{ data: plan }, { data: items }, { data: procedures }] = await Promise.all([
-    supabase.from("treatment_plans").select("id, title, notes, status, patients(name)").eq("id", id).single(),
+    supabase
+      .from("treatment_plans")
+      .select("id, title, notes, status, accepted_at, accepted_by_name, patients(id, name)")
+      .eq("id", id)
+      .single(),
     supabase
       .from("treatment_plan_items")
       .select("id, tooth_numbers, estimated_cost, status, procedures(name)")
@@ -30,14 +37,27 @@ export default async function TreatmentPlanDetailPage({
     return <p className="text-ink-muted">الخطة غير موجودة</p>;
   }
 
+  const patient = plan.patients as unknown as { id: string; name: string } | null;
+
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="font-mono text-xs tracking-wide text-ink-muted">
-          {(plan.patients as unknown as { name: string } | null)?.name ?? "—"}
-        </p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">{plan.title}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-mono text-xs tracking-wide text-ink-muted">
+            {patient ? (
+              <Link href={`/patients/${patient.id}`} className="underline underline-offset-2">
+                {patient.name}
+              </Link>
+            ) : (
+              "—"
+            )}
+          </p>
+          <h1 className="mt-1 text-2xl font-bold text-ink">{plan.title}</h1>
+        </div>
+        <PlanStatusSelect id={plan.id} status={plan.status} />
       </div>
+
+      <PlanAcceptanceForm planId={plan.id} acceptedAt={plan.accepted_at} acceptedByName={plan.accepted_by_name} />
 
       <div className="rounded-xl border border-border bg-surface p-5">
         <h2 className="mb-3 text-sm font-semibold text-ink">البنود</h2>

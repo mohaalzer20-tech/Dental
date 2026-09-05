@@ -18,6 +18,19 @@ export async function updateCommissionRate(_prevState: { error: string } | null,
   return null;
 }
 
+export async function updateStaffStatus(userId: string, status: string) {
+  const supabase = await createClient();
+  await supabase.from("users").update({ status }).eq("id", userId);
+  revalidatePath("/staff");
+  revalidatePath(`/staff/${userId}`);
+}
+
+export async function deleteShift(id: string) {
+  const supabase = await createClient();
+  await supabase.from("staff_shifts").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/staff");
+}
+
 export async function addShift(_prevState: { error: string } | null, formData: FormData) {
   const userId = String(formData.get("user_id") ?? "");
   const dayOfWeek = Number(formData.get("day_of_week") ?? 0);

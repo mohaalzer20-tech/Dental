@@ -41,3 +41,9 @@ export async function addChartEntry(_prevState: { error: string } | null, formDa
   revalidatePath("/clinical/dental-chart");
   return null;
 }
+
+export async function deleteChartEntry(id: string) {
+  const supabase = await createClient();
+  await supabase.from("dental_chart_entries").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/clinical/dental-chart");
+}

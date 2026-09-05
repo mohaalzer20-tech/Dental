@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 const DEBIT_NORMAL = new Set(["asset", "expense"]);
@@ -10,7 +11,7 @@ export default async function AccountLedgerPage({ params }: { params: Promise<{ 
     supabase.from("chart_of_accounts").select("id, code, name, type").eq("id", id).single(),
     supabase
       .from("journal_entry_lines")
-      .select("id, debit, credit, description, created_at, journal_entries(entry_no, entry_date, memo)")
+      .select("id, debit, credit, description, created_at, journal_entry_id, journal_entries(entry_no, entry_date, memo)")
       .eq("account_id", id)
       .order("created_at"),
   ]);
@@ -26,6 +27,7 @@ export default async function AccountLedgerPage({ params }: { params: Promise<{ 
       debit: number;
       credit: number;
       description: string | null;
+      journal_entry_id: string;
       entry: { entry_no: string; entry_date: string; memo: string | null } | null;
       balance: number;
     }>
@@ -67,7 +69,18 @@ export default async function AccountLedgerPage({ params }: { params: Promise<{ 
                   <td className="px-4 py-2.5 font-mono text-ink-muted">
                     {r.entry ? new Date(r.entry.entry_date).toLocaleDateString("ar-SY") : "—"}
                   </td>
-                  <td className="px-4 py-2.5 font-mono text-ink">{r.entry?.entry_no ?? "—"}</td>
+                  <td className="px-4 py-2.5 font-mono text-ink">
+                    {r.entry ? (
+                      <Link
+                        href={`/accounting/journal/${r.journal_entry_id}`}
+                        className="underline underline-offset-2"
+                      >
+                        {r.entry.entry_no}
+                      </Link>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                   <td className="px-4 py-2.5 text-ink-muted">{r.description ?? r.entry?.memo ?? "—"}</td>
                   <td className="px-4 py-2.5 font-mono text-ink">{Number(r.debit) > 0 ? r.debit : "—"}</td>
                   <td className="px-4 py-2.5 font-mono text-ink">{Number(r.credit) > 0 ? r.credit : "—"}</td>

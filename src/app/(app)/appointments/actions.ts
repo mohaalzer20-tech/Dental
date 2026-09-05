@@ -35,3 +35,16 @@ export async function updateAppointmentStatus(appointmentId: string, status: str
   await supabase.from("appointments").update({ status }).eq("id", appointmentId);
   revalidatePath("/appointments");
 }
+
+export async function deleteAppointment(id: string) {
+  const supabase = await createClient();
+  await supabase.from("appointments").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/appointments");
+}
+
+export async function markRecallCompleted(id: string) {
+  const supabase = await createClient();
+  await supabase.from("appointments").update({ recall_completed: true }).eq("id", id);
+  revalidatePath("/appointments");
+  revalidatePath("/follow-ups");
+}

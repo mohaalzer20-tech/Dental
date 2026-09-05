@@ -23,6 +23,12 @@ export async function addTemplate(_prevState: { error: string } | null, formData
   return null;
 }
 
+export async function deleteTemplate(id: string) {
+  const supabase = await createClient();
+  await supabase.from("communication_templates").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/marketing");
+}
+
 export async function queueMessage(_prevState: { error: string } | null, formData: FormData) {
   const patientId = String(formData.get("patient_id") ?? "") || null;
   const channel = String(formData.get("channel") ?? "sms");

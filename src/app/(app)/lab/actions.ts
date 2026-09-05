@@ -55,3 +55,35 @@ export async function updateLabOrderStatus(orderId: string, status: string) {
   await supabase.from("lab_orders").update(patch).eq("id", orderId);
   revalidatePath("/lab");
 }
+
+export async function deleteLabOrder(id: string) {
+  const supabase = await createClient();
+  await supabase.from("lab_orders").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/lab");
+}
+
+export async function updateLabVendor(_prevState: { error: string } | null, formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  const name = String(formData.get("name") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").trim();
+
+  if (!name) {
+    return { error: "اسم المخبر مطلوب" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("lab_vendors").update({ name, phone: phone || null }).eq("id", id);
+
+  if (error) {
+    return { error: "تعذر تحديث المخبر: " + error.message };
+  }
+
+  revalidatePath("/lab");
+  return null;
+}
+
+export async function deleteLabVendor(id: string) {
+  const supabase = await createClient();
+  await supabase.from("lab_vendors").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/lab");
+}

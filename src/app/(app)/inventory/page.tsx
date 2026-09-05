@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import ItemForm from "./ItemForm";
+import ItemRow from "./ItemRow";
 
 export default async function InventoryPage() {
   const supabase = await createClient();
@@ -9,6 +10,7 @@ export default async function InventoryPage() {
     supabase
       .from("inventory_items")
       .select("id, name, unit, current_stock, minimum_stock, purchase_price")
+      .is("deleted_at", null)
       .order("name"),
     supabase.from("v_stock_alerts").select("item_id, name, current_stock, minimum_stock, stock_alert, expiry_alert"),
   ]);
@@ -64,28 +66,15 @@ export default async function InventoryPage() {
               <th className="px-4 py-2.5 font-medium">الكمية الحالية</th>
               <th className="px-4 py-2.5 font-medium">الحد الأدنى</th>
               <th className="px-4 py-2.5 font-medium">سعر الشراء</th>
+              <th className="px-4 py-2.5 font-medium"></th>
             </tr>
           </thead>
           <tbody>
             {items?.length ? (
-              items.map((it) => (
-                <tr key={it.id} className="border-t border-border">
-                  <td className="px-4 py-2.5 text-ink">{it.name}</td>
-                  <td className="px-4 py-2.5 text-ink-muted">{it.unit}</td>
-                  <td
-                    className={`px-4 py-2.5 font-mono ${
-                      it.current_stock <= it.minimum_stock ? "text-danger" : "text-ink"
-                    }`}
-                  >
-                    {it.current_stock}
-                  </td>
-                  <td className="px-4 py-2.5 font-mono text-ink-muted">{it.minimum_stock}</td>
-                  <td className="px-4 py-2.5 font-mono text-ink-muted">{it.purchase_price}</td>
-                </tr>
-              ))
+              items.map((it) => <ItemRow key={it.id} item={it} />)
             ) : (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-ink-muted">
+                <td colSpan={6} className="px-4 py-8 text-center text-ink-muted">
                   ما في أصناف بعد
                 </td>
               </tr>

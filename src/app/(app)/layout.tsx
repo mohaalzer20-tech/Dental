@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "./actions";
 import NavLinks from "./NavLinks";
+import GlobalSearch from "./GlobalSearch";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -32,7 +33,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </form>
       </aside>
 
-      <main className="flex-1 px-8 py-8">{children}</main>
+      <div className="flex flex-1 flex-col">
+        <header className="border-b border-border bg-surface px-8 py-3">
+          <GlobalSearch />
+        </header>
+        <main className="flex-1 px-8 py-8">{children}</main>
+      </div>
     </div>
   );
 }

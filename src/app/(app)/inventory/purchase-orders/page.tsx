@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import DeleteButton from "@/components/DeleteButton";
 import POForm from "./POForm";
+import { deletePurchaseOrder } from "./actions";
 
 const statusLabels: Record<string, string> = {
   draft: "مسودة",
@@ -17,7 +19,8 @@ export default async function PurchaseOrdersPage() {
   const [{ data: orders }, { data: suppliers }] = await Promise.all([
     supabase
       .from("purchase_orders")
-      .select("id, order_number, status, total_amount, order_date, suppliers(name)")
+      .select("id, order_number, status, total_amount, order_date, suppliers(id, name)")
+      .is("deleted_at", null)
       .order("order_date", { ascending: false }),
     supabase.from("suppliers").select("id, name").order("name"),
   ]);
@@ -35,29 +38,46 @@ export default async function PurchaseOrdersPage() {
         <table className="w-full text-right text-sm">
           <thead className="bg-surface-alt text-ink-muted">
             <tr>
+              <th className="px-4 py-2.5 font-medium">أمر الشراء</th>
               <th className="px-4 py-2.5 font-medium">المورد</th>
               <th className="px-4 py-2.5 font-medium">الحالة</th>
               <th className="px-4 py-2.5 font-medium">الإجمالي</th>
               <th className="px-4 py-2.5 font-medium">التاريخ</th>
+              <th className="px-4 py-2.5 font-medium"></th>
             </tr>
           </thead>
           <tbody>
             {orders?.length ? (
-              orders.map((o) => (
-                <tr key={o.id} className="border-t border-border">
-                  <td className="px-4 py-2.5 text-ink">
-                    <Link href={`/inventory/purchase-orders/${o.id}`} className="underline underline-offset-2">
-                      {(o.suppliers as unknown as { name: string } | null)?.name ?? "—"}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-2.5 text-ink-muted">{statusLabels[o.status] ?? o.status}</td>
-                  <td className="px-4 py-2.5 font-mono text-ink-muted">{o.total_amount}</td>
-                  <td className="px-4 py-2.5 font-mono text-ink-muted">{o.order_date}</td>
-                </tr>
-              ))
+              orders.map((o) => {
+                const supplier = o.suppliers as unknown as { id?: string; name: string } | null;
+                return (
+                  <tr key={o.id} className="border-t border-border">
+                    <td className="px-4 py-2.5 font-mono text-ink">
+                      <Link href={`/inventory/purchase-orders/${o.id}`} className="underline underline-offset-2">
+                        {o.order_number ?? o.id.slice(0, 8)}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-2.5 text-ink">
+                      {supplier?.id ? (
+                        <Link href={`/inventory/suppliers/${supplier.id}`} className="underline underline-offset-2">
+                          {supplier.name}
+                        </Link>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5 text-ink-muted">{statusLabels[o.status] ?? o.status}</td>
+                    <td className="px-4 py-2.5 font-mono text-ink-muted">{o.total_amount}</td>
+                    <td className="px-4 py-2.5 font-mono text-ink-muted">{o.order_date}</td>
+                    <td className="px-4 py-2.5">
+                      <DeleteButton action={deletePurchaseOrder.bind(null, o.id)} />
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-ink-muted">
+                <td colSpan={6} className="px-4 py-8 text-center text-ink-muted">
                   ما في أوامر شراء بعد
                 </td>
               </tr>

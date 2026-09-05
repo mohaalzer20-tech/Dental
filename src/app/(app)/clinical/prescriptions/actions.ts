@@ -53,3 +53,9 @@ export async function addPrescriptionItem(_prevState: { error: string } | null, 
   revalidatePath(`/clinical/prescriptions/${prescriptionId}`);
   return null;
 }
+
+export async function deletePrescription(id: string) {
+  const supabase = await createClient();
+  await supabase.from("prescriptions").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/clinical/prescriptions");
+}

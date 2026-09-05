@@ -39,6 +39,7 @@ const groups: NavGroup[] = [
   {
     label: "الإدارة والتشغيل",
     items: [
+      { href: "/follow-ups", label: "متابعة دورية", icon: BellIcon },
       { href: "/inventory", label: "المخزون", icon: BoxIcon },
       { href: "/staff", label: "الموظفون", icon: UserGearIcon },
       { href: "/marketing", label: "التسويق", icon: MegaphoneIcon },
@@ -256,6 +257,15 @@ function ExpenseIcon({ className }: { className?: string }) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className}>
       <circle cx="12" cy="12" r="8.5" />
       <path d="M12 7.5v9M14.5 9.5c0-1-1-1.7-2.5-1.7s-2.5.7-2.5 1.7 1 1.5 2.5 1.9 2.5 1 2.5 1.9-1 1.7-2.5 1.7-2.5-.7-2.5-1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function BellIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className}>
+      <path d="M6 10a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 14 6 10Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10 19a2 2 0 0 0 4 0" strokeLinecap="round" />
     </svg>
   );
 }

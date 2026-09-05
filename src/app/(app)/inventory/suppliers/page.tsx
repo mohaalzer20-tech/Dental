@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import SupplierForm from "./SupplierForm";
 
@@ -6,6 +7,7 @@ export default async function SuppliersPage() {
   const { data: suppliers } = await supabase
     .from("suppliers")
     .select("id, name, contact_person, phone")
+    .is("deleted_at", null)
     .order("name");
 
   return (
@@ -30,7 +32,11 @@ export default async function SuppliersPage() {
             {suppliers?.length ? (
               suppliers.map((s) => (
                 <tr key={s.id} className="border-t border-border">
-                  <td className="px-4 py-2.5 text-ink">{s.name}</td>
+                  <td className="px-4 py-2.5 text-ink">
+                    <Link href={`/inventory/suppliers/${s.id}`} className="underline underline-offset-2">
+                      {s.name}
+                    </Link>
+                  </td>
                   <td className="px-4 py-2.5 text-ink-muted">{s.contact_person ?? "—"}</td>
                   <td className="px-4 py-2.5 font-mono text-ink-muted">{s.phone ?? "—"}</td>
                 </tr>

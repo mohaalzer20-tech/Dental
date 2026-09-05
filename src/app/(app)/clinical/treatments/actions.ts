@@ -32,3 +32,9 @@ export async function addTreatment(_prevState: { error: string } | null, formDat
   revalidatePath("/clinical/treatments");
   return null;
 }
+
+export async function deleteTreatment(id: string) {
+  const supabase = await createClient();
+  await supabase.from("treatments").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/clinical/treatments");
+}

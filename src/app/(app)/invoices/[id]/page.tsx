@@ -1,6 +1,10 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import DeleteButton from "@/components/DeleteButton";
 import ItemForm from "./ItemForm";
 import PaymentForm from "./PaymentForm";
+import DiscountForm from "./DiscountForm";
+import { deletePayment } from "../actions";
 
 export default async function InvoiceDetailPage({
   params,
@@ -13,7 +17,7 @@ export default async function InvoiceDetailPage({
   const [{ data: invoice }, { data: items }, { data: payments }] = await Promise.all([
     supabase
       .from("invoices")
-      .select("id, invoice_no, subtotal, discount_amount, total_amount, paid_amount, status, notes, patients(name), users(full_name)")
+      .select("id, invoice_no, subtotal, discount_amount, total_amount, paid_amount, status, notes, patients(id, name), users(id, full_name)")
       .eq("id", id)
       .single(),
     supabase.from("invoice_items").select("id, description, quantity, unit_price, amount").eq("invoice_id", id),
@@ -24,15 +28,31 @@ export default async function InvoiceDetailPage({
     return <p className="text-ink-muted">الفاتورة غير موجودة</p>;
   }
 
-  const patientName = (invoice.patients as unknown as { name: string } | null)?.name ?? "—";
-  const providerName = (invoice.users as unknown as { full_name: string } | null)?.full_name;
+  const patient = invoice.patients as unknown as { id: string; name: string } | null;
+  const provider = invoice.users as unknown as { id: string; full_name: string } | null;
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">{invoice.invoice_no}</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">فاتورة {patientName}</h1>
-        {providerName && <p className="text-sm text-ink-muted">الطبيب: {providerName}</p>}
+        <h1 className="mt-1 text-2xl font-bold text-ink">
+          فاتورة{" "}
+          {patient ? (
+            <Link href={`/patients/${patient.id}`} className="underline underline-offset-2">
+              {patient.name}
+            </Link>
+          ) : (
+            "—"
+          )}
+        </h1>
+        {provider && (
+          <p className="text-sm text-ink-muted">
+            الطبيب:{" "}
+            <Link href={`/staff/${provider.id}`} className="underline underline-offset-2">
+              {provider.full_name}
+            </Link>
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -43,6 +63,9 @@ export default async function InvoiceDetailPage({
         <div className="rounded-xl border border-border bg-surface p-4">
           <p className="text-xs text-ink-muted">الخصم</p>
           <p className="mt-1 font-mono text-lg text-ink">{invoice.discount_amount}</p>
+          <div className="mt-1">
+            <DiscountForm invoiceId={invoice.id} discountAmount={invoice.discount_amount} />
+          </div>
         </div>
         <div className="rounded-xl border border-border bg-surface p-4">
           <p className="text-xs text-ink-muted">الإجمالي</p>
@@ -90,6 +113,7 @@ export default async function InvoiceDetailPage({
               <th className="pb-2 font-medium">الطريقة</th>
               <th className="pb-2 font-medium">التاريخ</th>
               <th className="pb-2 font-medium">ملاحظات</th>
+              <th className="pb-2 font-medium"></th>
             </tr>
           </thead>
           <tbody>
@@ -101,6 +125,12 @@ export default async function InvoiceDetailPage({
                   {new Date(p.paid_at).toLocaleDateString("ar-SY")}
                 </td>
                 <td className="py-2 text-ink-muted">{p.notes ?? "—"}</td>
+                <td className="py-2">
+                  <DeleteButton
+                    action={deletePayment.bind(null, p.id, id)}
+                    confirmMessage="متأكد إنك تبي تحذف هذي الدفعة؟ بينعكس القيد المحاسبي المرتبط فيها تلقائياً."
+                  />
+                </td>
               </tr>
             ))}
           </tbody>

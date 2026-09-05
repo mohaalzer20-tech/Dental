@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function DashboardPage() {
@@ -6,8 +7,8 @@ export default async function DashboardPage() {
   const [{ data: practice }, { count: patientsCount }, { count: appointmentsCount }] =
     await Promise.all([
       supabase.from("practices").select("doctor_name, subscription_status").single(),
-      supabase.from("patients").select("*", { count: "exact", head: true }),
-      supabase.from("appointments").select("*", { count: "exact", head: true }),
+      supabase.from("patients").select("*", { count: "exact", head: true }).is("deleted_at", null),
+      supabase.from("appointments").select("*", { count: "exact", head: true }).is("deleted_at", null),
     ]);
 
   return (
@@ -20,18 +21,21 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <StatCard label="عدد المرضى" value={patientsCount ?? 0} />
-        <StatCard label="عدد المواعيد" value={appointmentsCount ?? 0} />
+        <StatCard href="/patients" label="عدد المرضى" value={patientsCount ?? 0} />
+        <StatCard href="/appointments" label="عدد المواعيد" value={appointmentsCount ?? 0} />
       </div>
     </div>
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({ href, label, value }: { href: string; label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <Link
+      href={href}
+      className="rounded-xl border border-border bg-surface p-5 transition-colors hover:border-primary"
+    >
       <p className="text-sm text-ink-muted">{label}</p>
       <p className="mt-2 font-mono text-3xl font-medium text-primary-strong">{value}</p>
-    </div>
+    </Link>
   );
 }

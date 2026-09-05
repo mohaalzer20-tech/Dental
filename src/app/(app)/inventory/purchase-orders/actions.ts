@@ -55,3 +55,9 @@ export async function addPurchaseOrderItem(_prevState: { error: string } | null,
   revalidatePath(`/inventory/purchase-orders/${poId}`);
   return null;
 }
+
+export async function deletePurchaseOrder(id: string) {
+  const supabase = await createClient();
+  await supabase.from("purchase_orders").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/inventory/purchase-orders");
+}

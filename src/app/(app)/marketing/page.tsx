@@ -1,6 +1,9 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import DeleteButton from "@/components/DeleteButton";
 import TemplateForm from "./TemplateForm";
 import MessageForm from "./MessageForm";
+import { deleteTemplate } from "./actions";
 
 const statusLabels: Record<string, string> = {
   queued: "بقائمة الانتظار",
@@ -18,10 +21,10 @@ export default async function MarketingPage() {
   const supabase = await createClient();
 
   const [{ data: templates }, { data: messages }, { data: patients }] = await Promise.all([
-    supabase.from("communication_templates").select("id, name, channel, body").order("name"),
+    supabase.from("communication_templates").select("id, name, channel, body").is("deleted_at", null).order("name"),
     supabase
       .from("message_log")
-      .select("id, channel, body, status, created_at, patients(name)")
+      .select("id, channel, body, status, created_at, patients(id, name)")
       .order("created_at", { ascending: false })
       .limit(50),
     supabase.from("patients").select("id, name").order("name"),
@@ -45,6 +48,7 @@ export default async function MarketingPage() {
               <th className="px-4 py-2.5 font-medium">الاسم</th>
               <th className="px-4 py-2.5 font-medium">القناة</th>
               <th className="px-4 py-2.5 font-medium">النص</th>
+              <th className="px-4 py-2.5 font-medium"></th>
             </tr>
           </thead>
           <tbody>
@@ -54,11 +58,14 @@ export default async function MarketingPage() {
                   <td className="px-4 py-2.5 text-ink">{t.name}</td>
                   <td className="px-4 py-2.5 text-ink-muted">{channelLabels[t.channel] ?? t.channel}</td>
                   <td className="px-4 py-2.5 text-ink-muted">{t.body}</td>
+                  <td className="px-4 py-2.5">
+                    <DeleteButton action={deleteTemplate.bind(null, t.id)} />
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={3} className="px-4 py-6 text-center text-ink-muted">
+                <td colSpan={4} className="px-4 py-6 text-center text-ink-muted">
                   ما في قوالب بعد
                 </td>
               </tr>
@@ -80,16 +87,25 @@ export default async function MarketingPage() {
           </thead>
           <tbody>
             {messages?.length ? (
-              messages.map((m) => (
-                <tr key={m.id} className="border-t border-border">
-                  <td className="px-4 py-2.5 text-ink">
-                    {(m.patients as unknown as { name: string } | null)?.name ?? "الكل"}
-                  </td>
-                  <td className="px-4 py-2.5 text-ink-muted">{channelLabels[m.channel] ?? m.channel}</td>
-                  <td className="px-4 py-2.5 text-ink-muted">{m.body}</td>
-                  <td className="px-4 py-2.5 text-ink-muted">{statusLabels[m.status] ?? m.status}</td>
-                </tr>
-              ))
+              messages.map((m) => {
+                const patient = m.patients as unknown as { id?: string; name: string } | null;
+                return (
+                  <tr key={m.id} className="border-t border-border">
+                    <td className="px-4 py-2.5 text-ink">
+                      {patient?.id ? (
+                        <Link href={`/patients/${patient.id}`} className="underline underline-offset-2">
+                          {patient.name}
+                        </Link>
+                      ) : (
+                        "الكل"
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5 text-ink-muted">{channelLabels[m.channel] ?? m.channel}</td>
+                    <td className="px-4 py-2.5 text-ink-muted">{m.body}</td>
+                    <td className="px-4 py-2.5 text-ink-muted">{statusLabels[m.status] ?? m.status}</td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td colSpan={4} className="px-4 py-6 text-center text-ink-muted">

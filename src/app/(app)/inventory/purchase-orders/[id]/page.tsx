@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import POItemForm from "./POItemForm";
 
@@ -10,7 +11,7 @@ export default async function PODetailPage({
   const supabase = await createClient();
 
   const [{ data: po }, { data: items }, { data: inventoryItems }] = await Promise.all([
-    supabase.from("purchase_orders").select("id, status, total_amount, suppliers(name)").eq("id", id).single(),
+    supabase.from("purchase_orders").select("id, status, total_amount, suppliers(id, name)").eq("id", id).single(),
     supabase
       .from("purchase_order_items")
       .select("id, quantity, unit_price, amount, inventory_items(name)")
@@ -22,11 +23,19 @@ export default async function PODetailPage({
     return <p className="text-ink-muted">أمر الشراء غير موجود</p>;
   }
 
+  const supplier = po.suppliers as unknown as { id: string; name: string } | null;
+
   return (
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">
-          {(po.suppliers as unknown as { name: string } | null)?.name ?? "—"}
+          {supplier ? (
+            <Link href={`/inventory/suppliers/${supplier.id}`} className="underline underline-offset-2">
+              {supplier.name}
+            </Link>
+          ) : (
+            "—"
+          )}
         </p>
         <h1 className="mt-1 text-2xl font-bold text-ink">أمر شراء</h1>
       </div>
@@ -63,9 +72,9 @@ export default async function PODetailPage({
 
       <p className="text-sm text-ink-muted">
         بعد استلام البضاعة فعلياً، سجّل الكمية عبر صفحة{" "}
-        <a href="/inventory/transactions" className="text-primary-strong underline underline-offset-2">
+        <Link href="/inventory/transactions" className="text-primary-strong underline underline-offset-2">
           حركات المخزون
-        </a>{" "}
+        </Link>{" "}
         (نوع الحركة: شراء) ليتحدّث المخزون تلقائياً.
       </p>
     </div>

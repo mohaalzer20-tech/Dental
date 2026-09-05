@@ -95,3 +95,29 @@ export async function updateDiscount(invoiceId: string, discount: number) {
   await supabase.rpc("recompute_invoice", { p_invoice_id: invoiceId });
   revalidatePath(`/invoices/${invoiceId}`);
 }
+
+export async function deleteInvoice(id: string) {
+  const supabase = await createClient();
+  await supabase.from("invoices").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/invoices");
+  redirect("/invoices");
+}
+
+export async function deletePayment(paymentId: string, invoiceId: string) {
+  const supabase = await createClient();
+
+  const { data: linkedEntry } = await supabase
+    .from("journal_entries")
+    .select("id")
+    .eq("source_type", "payment")
+    .eq("source_id", paymentId)
+    .maybeSingle();
+
+  if (linkedEntry) {
+    await supabase.rpc("reverse_journal_entry", { p_entry_id: linkedEntry.id });
+  }
+
+  await supabase.from("payments").delete().eq("id", paymentId);
+  revalidatePath(`/invoices/${invoiceId}`);
+  revalidatePath("/accounting/journal");
+}

@@ -1,6 +1,9 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import DeleteButton from "@/components/DeleteButton";
 import ShiftForm from "./ShiftForm";
 import CommissionRateInput from "./CommissionRateInput";
+import { deleteShift } from "./actions";
 
 const roleLabels: Record<string, string> = {
   doctor: "طبيب",
@@ -18,6 +21,7 @@ export default async function StaffPage() {
     supabase
       .from("staff_shifts")
       .select("id, day_of_week, start_time, end_time, users(full_name)")
+      .is("deleted_at", null)
       .order("day_of_week"),
     supabase.from("v_staff_commissions").select("user_id, full_name, commission_rate, total_billed, commission_amount"),
   ]);
@@ -42,7 +46,11 @@ export default async function StaffPage() {
           <tbody>
             {staff?.map((s) => (
               <tr key={s.id} className="border-t border-border">
-                <td className="px-4 py-2.5 text-ink">{s.full_name}</td>
+                <td className="px-4 py-2.5 text-ink">
+                  <Link href={`/staff/${s.id}`} className="underline underline-offset-2">
+                    {s.full_name}
+                  </Link>
+                </td>
                 <td className="px-4 py-2.5 text-ink-muted">{roleLabels[s.role] ?? s.role}</td>
                 <td className="px-4 py-2.5 font-mono text-ink-muted">{s.email}</td>
                 <td className="px-4 py-2.5">
@@ -65,6 +73,7 @@ export default async function StaffPage() {
               <th className="px-4 py-2.5 font-medium">اليوم</th>
               <th className="px-4 py-2.5 font-medium">من</th>
               <th className="px-4 py-2.5 font-medium">إلى</th>
+              <th className="px-4 py-2.5 font-medium"></th>
             </tr>
           </thead>
           <tbody>
@@ -77,11 +86,14 @@ export default async function StaffPage() {
                   <td className="px-4 py-2.5 text-ink-muted">{days[sh.day_of_week]}</td>
                   <td className="px-4 py-2.5 font-mono text-ink-muted">{sh.start_time}</td>
                   <td className="px-4 py-2.5 font-mono text-ink-muted">{sh.end_time}</td>
+                  <td className="px-4 py-2.5">
+                    <DeleteButton action={deleteShift.bind(null, sh.id)} />
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-ink-muted">
+                <td colSpan={5} className="px-4 py-6 text-center text-ink-muted">
                   ما في دوامات مسجّلة
                 </td>
               </tr>

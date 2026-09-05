@@ -1,11 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import ProcedureForm from "./ProcedureForm";
+import ProcedureRow from "./ProcedureRow";
 
 export default async function ProceduresPage() {
   const supabase = await createClient();
   const { data: procedures } = await supabase
     .from("procedures")
     .select("id, name, category, base_price, is_active")
+    .is("deleted_at", null)
     .order("name");
 
   return (
@@ -24,20 +26,15 @@ export default async function ProceduresPage() {
               <th className="px-4 py-2.5 font-medium">الاسم</th>
               <th className="px-4 py-2.5 font-medium">التصنيف</th>
               <th className="px-4 py-2.5 font-medium">السعر الأساسي</th>
+              <th className="px-4 py-2.5 font-medium"></th>
             </tr>
           </thead>
           <tbody>
             {procedures?.length ? (
-              procedures.map((p) => (
-                <tr key={p.id} className="border-t border-border">
-                  <td className="px-4 py-2.5 text-ink">{p.name}</td>
-                  <td className="px-4 py-2.5 text-ink-muted">{p.category ?? "—"}</td>
-                  <td className="px-4 py-2.5 font-mono text-ink-muted">{p.base_price}</td>
-                </tr>
-              ))
+              procedures.map((p) => <ProcedureRow key={p.id} procedure={p} />)
             ) : (
               <tr>
-                <td colSpan={3} className="px-4 py-8 text-center text-ink-muted">
+                <td colSpan={4} className="px-4 py-8 text-center text-ink-muted">
                   ما في إجراءات بعد
                 </td>
               </tr>

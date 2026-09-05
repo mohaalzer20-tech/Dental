@@ -1,4 +1,17 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+
+const entityHrefBuilders: Record<string, (id: string) => string> = {
+  patients: (id) => `/patients/${id}`,
+  users: (id) => `/staff/${id}`,
+  suppliers: (id) => `/inventory/suppliers/${id}`,
+  invoices: (id) => `/invoices/${id}`,
+  prescriptions: (id) => `/clinical/prescriptions/${id}`,
+  treatment_plans: (id) => `/clinical/treatment-plans/${id}`,
+  purchase_orders: (id) => `/inventory/purchase-orders/${id}`,
+  chart_of_accounts: (id) => `/accounting/chart-of-accounts/${id}`,
+  journal_entries: (id) => `/accounting/journal/${id}`,
+};
 
 const actionLabels: Record<string, string> = {
   create: "إنشاء",
@@ -54,7 +67,16 @@ export default async function AuditPage() {
                     </span>
                   </td>
                   <td className="px-4 py-2.5 font-mono text-xs text-ink-muted">
-                    {String(e.entity_id).slice(0, 8)}…
+                    {entityHrefBuilders[e.entity_type] ? (
+                      <Link
+                        href={entityHrefBuilders[e.entity_type](String(e.entity_id))}
+                        className="underline underline-offset-2"
+                      >
+                        {String(e.entity_id).slice(0, 8)}…
+                      </Link>
+                    ) : (
+                      <>{String(e.entity_id).slice(0, 8)}…</>
+                    )}
                   </td>
                   <td className="px-4 py-2.5 font-mono text-ink-muted">
                     {new Date(e.created_at).toLocaleString("ar-SY")}
