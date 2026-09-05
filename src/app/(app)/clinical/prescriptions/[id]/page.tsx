@@ -28,18 +28,26 @@ export default async function PrescriptionDetailPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="font-mono text-xs tracking-wide text-ink-muted">
-          {patient ? (
-            <Link href={`/patients/${patient.id}`} className="underline underline-offset-2">
-              {patient.name}
-            </Link>
-          ) : (
-            "—"
-          )}
-        </p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">وصفة طبية</h1>
-        {prescription.diagnosis && <p className="text-sm text-ink-muted">التشخيص: {prescription.diagnosis}</p>}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-mono text-xs tracking-wide text-ink-muted">
+            {patient ? (
+              <Link href={`/patients/${patient.id}`} className="underline underline-offset-2">
+                {patient.name}
+              </Link>
+            ) : (
+              "—"
+            )}
+          </p>
+          <h1 className="mt-1 text-2xl font-bold text-ink">وصفة طبية</h1>
+          {prescription.diagnosis && <p className="text-sm text-ink-muted">التشخيص: {prescription.diagnosis}</p>}
+        </div>
+        <Link
+          href={`/clinical/prescriptions/${id}/print`}
+          className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-surface-alt"
+        >
+          طباعة الوصفة
+        </Link>
       </div>
 
       <div className="rounded-xl border border-border bg-surface p-5">

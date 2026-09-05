@@ -160,8 +160,11 @@ export default async function PatientProfilePage({ params }: { params: Promise<{
                 <Link href={`/invoices/${inv.id}`} className="font-mono text-ink underline underline-offset-2">
                   {inv.invoice_no}
                 </Link>
-                <span className="text-ink-muted">
+                <span className="flex items-center gap-3 text-ink-muted">
                   {inv.paid_amount}/{inv.total_amount} — {invoiceStatusLabels[inv.status] ?? inv.status}
+                  <Link href={`/invoices/${inv.id}/print`} className="underline underline-offset-2">
+                    طباعة
+                  </Link>
                 </span>
               </li>
             ))}
@@ -219,8 +222,11 @@ export default async function PatientProfilePage({ params }: { params: Promise<{
                 >
                   {p.diagnosis ?? "وصفة"}
                 </Link>
-                <span className="font-mono text-ink-muted">
-                  {new Date(p.created_at).toLocaleDateString("ar-SY")}
+                <span className="flex items-center gap-3 text-ink-muted">
+                  <span className="font-mono">{new Date(p.created_at).toLocaleDateString("ar-SY")}</span>
+                  <Link href={`/clinical/prescriptions/${p.id}/print`} className="underline underline-offset-2">
+                    طباعة
+                  </Link>
                 </span>
               </li>
             ))}

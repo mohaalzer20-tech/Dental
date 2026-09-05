@@ -12,7 +12,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen bg-bg">
-      <aside className="flex w-60 shrink-0 flex-col border-l border-border bg-surface">
+      <aside className="flex w-60 shrink-0 flex-col border-l border-border bg-surface print:hidden">
         <div className="border-b border-border px-5 py-5">
           <p className="text-sm font-bold text-primary-strong">عيادتي</p>
           <p className="mt-1 truncate text-xs text-ink-muted">
@@ -34,7 +34,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </aside>
 
       <div className="flex flex-1 flex-col">
-        <header className="border-b border-border bg-surface px-8 py-3">
+        <header className="border-b border-border bg-surface px-8 py-3 print:hidden">
           <GlobalSearch />
         </header>
         <main className="flex-1 px-8 py-8">{children}</main>
