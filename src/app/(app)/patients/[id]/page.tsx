@@ -152,7 +152,7 @@ export default async function PatientProfilePage({ params }: { params: Promise<{
             {appointments.map((a) => (
               <li key={a.id} className="flex justify-between text-sm">
                 <span className="font-mono text-ink-muted">
-                  {new Date(a.start_time).toLocaleString("ar-SY")}
+                  {new Date(a.start_time).toLocaleString("ar-SY-u-nu-latn")}
                 </span>
                 <span className="text-ink-muted">{appointmentStatusLabels[a.status] ?? a.status}</span>
               </li>
@@ -234,7 +234,7 @@ export default async function PatientProfilePage({ params }: { params: Promise<{
                   {p.diagnosis ?? "وصفة"}
                 </Link>
                 <span className="flex items-center gap-3 text-ink-muted">
-                  <span className="font-mono">{new Date(p.created_at).toLocaleDateString("ar-SY")}</span>
+                  <span className="font-mono">{new Date(p.created_at).toLocaleDateString("ar-SY-u-nu-latn")}</span>
                   <Link href={`/clinical/prescriptions/${p.id}/print`} className="underline underline-offset-2">
                     طباعة
                   </Link>

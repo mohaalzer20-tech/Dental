@@ -59,7 +59,7 @@ export default async function InvoiceDetailPage({
       return {
         id: t.id,
         cost: Number(t.cost) || 0,
-        label: `${procedure?.name ?? t.diagnosis ?? "معالجة"} — ${new Date(t.performed_at).toLocaleDateString("ar-SY")}`,
+        label: `${procedure?.name ?? t.diagnosis ?? "معالجة"} — ${new Date(t.performed_at).toLocaleDateString("ar-SY-u-nu-latn")}`,
       };
     });
 
@@ -169,7 +169,7 @@ export default async function InvoiceDetailPage({
                 <td className="py-2 font-mono text-ink">{p.amount}</td>
                 <td className="py-2 text-ink-muted">{p.method}</td>
                 <td className="py-2 font-mono text-ink-muted">
-                  {new Date(p.paid_at).toLocaleDateString("ar-SY")}
+                  {new Date(p.paid_at).toLocaleDateString("ar-SY-u-nu-latn")}
                 </td>
                 <td className="py-2 text-ink-muted">{p.notes ?? "—"}</td>
                 <td className="py-2">

@@ -49,7 +49,7 @@ export default async function JournalPage() {
                     </Link>
                   </td>
                   <td className="px-4 py-2.5 font-mono text-ink-muted">
-                    {new Date(e.entry_date).toLocaleDateString("ar-SY")}
+                    {new Date(e.entry_date).toLocaleDateString("ar-SY-u-nu-latn")}
                   </td>
                   <td className="px-4 py-2.5 text-ink">{e.memo ?? "—"}</td>
                   <td className="px-4 py-2.5 text-ink-muted">{sourceLabels[e.source_type] ?? e.source_type}</td>

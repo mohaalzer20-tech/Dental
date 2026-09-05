@@ -54,7 +54,7 @@ export default async function ExpensesPage() {
                   <td className="px-4 py-2.5 text-ink">{e.payee ?? "—"}</td>
                   <td className="px-4 py-2.5 font-mono text-danger">{e.amount}</td>
                   <td className="px-4 py-2.5 font-mono text-ink-muted">
-                    {new Date(e.expense_date).toLocaleDateString("ar-SY")}
+                    {new Date(e.expense_date).toLocaleDateString("ar-SY-u-nu-latn")}
                   </td>
                 </tr>
               ))

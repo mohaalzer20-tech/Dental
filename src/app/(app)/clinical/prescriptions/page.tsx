@@ -64,7 +64,7 @@ export default async function PrescriptionsPage({
                   </td>
                   <td className="px-4 py-2.5 text-ink-muted">{p.diagnosis ?? "—"}</td>
                   <td className="px-4 py-2.5 font-mono text-ink-muted">
-                    {new Date(p.created_at).toLocaleDateString("ar-SY")}
+                    {new Date(p.created_at).toLocaleDateString("ar-SY-u-nu-latn")}
                   </td>
                   <td className="px-4 py-2.5">
                     <DeleteButton action={deletePrescription.bind(null, p.id)} />

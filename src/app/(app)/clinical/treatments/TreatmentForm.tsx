@@ -90,7 +90,7 @@ export default function TreatmentForm({
           <option value="">بدون موعد محدد</option>
           {patientAppointments.map((a) => (
             <option key={a.id} value={a.id}>
-              {new Date(a.start_time).toLocaleString("ar-SY")}
+              {new Date(a.start_time).toLocaleString("ar-SY-u-nu-latn")}
             </option>
           ))}
         </select>

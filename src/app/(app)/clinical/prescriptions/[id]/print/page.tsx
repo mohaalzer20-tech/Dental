@@ -32,11 +32,11 @@ export default async function PrescriptionPrintPage({ params }: { params: Promis
         <div>
           <h1 className="text-lg font-bold text-ink">وصفة طبية</h1>
           <p className="text-sm text-ink-muted">
-            التاريخ: {new Date(prescription.created_at).toLocaleDateString("ar-SY")}
+            التاريخ: {new Date(prescription.created_at).toLocaleDateString("ar-SY-u-nu-latn")}
           </p>
           {prescription.valid_until && (
             <p className="text-sm text-ink-muted">
-              صالحة حتى: {new Date(prescription.valid_until).toLocaleDateString("ar-SY")}
+              صالحة حتى: {new Date(prescription.valid_until).toLocaleDateString("ar-SY-u-nu-latn")}
             </p>
           )}
         </div>

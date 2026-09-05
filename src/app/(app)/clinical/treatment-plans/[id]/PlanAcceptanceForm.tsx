@@ -22,7 +22,7 @@ export default function PlanAcceptanceForm({
       <div className="rounded-xl border border-primary bg-surface-alt p-4 text-sm">
         <p className="font-medium text-primary-strong">
           تمت الموافقة على الخطة بواسطة {acceptedByName} بتاريخ{" "}
-          {new Date(acceptedAt).toLocaleString("ar-SY")}
+          {new Date(acceptedAt).toLocaleString("ar-SY-u-nu-latn")}
         </p>
       </div>
     );

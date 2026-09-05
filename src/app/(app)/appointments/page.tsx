@@ -74,10 +74,10 @@ export default async function AppointmentsPage({
                       )}
                     </td>
                     <td className="px-4 py-2.5 font-mono text-ink-muted">
-                      {new Date(a.start_time).toLocaleString("ar-SY")}
+                      {new Date(a.start_time).toLocaleString("ar-SY-u-nu-latn")}
                     </td>
                     <td className="px-4 py-2.5 font-mono text-ink-muted">
-                      {new Date(a.end_time).toLocaleString("ar-SY")}
+                      {new Date(a.end_time).toLocaleString("ar-SY-u-nu-latn")}
                     </td>
                     <td className="px-4 py-2.5">
                       <AppointmentStatusSelect id={a.id} status={a.status} />

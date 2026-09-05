@@ -86,7 +86,7 @@ export default async function AuditPage() {
                     )}
                   </td>
                   <td className="px-4 py-2.5 font-mono text-ink-muted">
-                    {new Date(e.created_at).toLocaleString("ar-SY")}
+                    {new Date(e.created_at).toLocaleString("ar-SY-u-nu-latn")}
                   </td>
                   <td className="px-4 py-2.5">
                     {softDeleted && (

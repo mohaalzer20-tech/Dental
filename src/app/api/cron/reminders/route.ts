@@ -90,7 +90,7 @@ export async function GET(request: Request) {
   for (const appt of appointments ?? []) {
     if (await alreadySent(supabase, "appointment_reminder", appt.id)) continue;
     const patient = appt.patients as unknown as { phone: string | null; name: string };
-    const time = new Date(appt.start_time).toLocaleString("ar-SY", { hour: "2-digit", minute: "2-digit" });
+    const time = new Date(appt.start_time).toLocaleString("ar-SY-u-nu-latn", { hour: "2-digit", minute: "2-digit" });
     const body = `تذكير: لديك موعد غداً الساعة ${time}. لإلغاء أو تعديل الموعد الرجاء التواصل مع العيادة.`;
     const result = await logAndSend(supabase, {
       practiceId: appt.practice_id,

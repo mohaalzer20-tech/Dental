@@ -57,7 +57,7 @@ export default async function TransactionsPage() {
                     {t.previous_stock} → {t.new_stock}
                   </td>
                   <td className="px-4 py-2.5 font-mono text-ink-muted">
-                    {new Date(t.transaction_date).toLocaleDateString("ar-SY")}
+                    {new Date(t.transaction_date).toLocaleDateString("ar-SY-u-nu-latn")}
                   </td>
                 </tr>
               ))

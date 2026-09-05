@@ -68,7 +68,7 @@ export default async function TreatmentPlanConsentPrintPage({ params }: { params
         {plan.accepted_at && (
           <p className="mt-3 text-ink-muted">
             الموافقة مسجّلة باسم: <span className="font-medium text-ink">{plan.accepted_by_name}</span> بتاريخ{" "}
-            {new Date(plan.accepted_at).toLocaleString("ar-SY")}
+            {new Date(plan.accepted_at).toLocaleString("ar-SY-u-nu-latn")}
           </p>
         )}
       </div>

@@ -33,7 +33,7 @@ export default async function TrackPage({
         {result.patient_name} — {result.doctor_name}
       </p>
       <p className="font-mono text-ink">
-        {new Date(result.start_time).toLocaleString("ar-SY")}
+        {new Date(result.start_time).toLocaleString("ar-SY-u-nu-latn")}
       </p>
       <span className="mx-auto rounded-full border border-primary px-4 py-1 text-sm font-medium text-primary-strong">
         {statusLabels[result.status] ?? result.status}

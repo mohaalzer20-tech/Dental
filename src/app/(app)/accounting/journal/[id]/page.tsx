@@ -51,7 +51,7 @@ export default async function JournalEntryDetailPage({ params }: { params: Promi
         <p className="font-mono text-xs tracking-wide text-ink-muted">{entry.entry_no}</p>
         <h1 className="mt-1 text-2xl font-bold text-ink">{entry.memo ?? "قيد يومية"}</h1>
         <p className="mt-1 text-sm text-ink-muted">
-          {new Date(entry.entry_date).toLocaleDateString("ar-SY")} —{" "}
+          {new Date(entry.entry_date).toLocaleDateString("ar-SY-u-nu-latn")} —{" "}
           {sourceHref ? (
             <Link href={sourceHref} className="underline underline-offset-2">
               {sourceLabels[entry.source_type] ?? entry.source_type}

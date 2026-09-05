@@ -59,7 +59,7 @@ export async function GET() {
 
   const index = wb.addWorksheet("الفهرس", { views: [{ rightToLeft: true }] });
   index.columns = [{ width: 30 }, { width: 16 }];
-  index.addRow([`نسخة احتياطية كاملة — ${new Date().toLocaleString("ar-SY")}`]);
+  index.addRow([`نسخة احتياطية كاملة — ${new Date().toLocaleString("ar-SY-u-nu-latn")}`]);
   index.addRow([]);
   index.addRow(["الجدول", "عدد السجلات"]);
   for (const { key, label } of TABLES) {

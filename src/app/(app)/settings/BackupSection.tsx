@@ -38,7 +38,7 @@ export default function BackupSection() {
     <div className="flex flex-col gap-3">
       <p className={`text-sm ${overdue ? "text-danger" : "text-primary-strong"}`}>
         {lastAt
-          ? `آخر نسخة من هذا الجهاز: ${new Date(lastAt).toLocaleDateString("ar-SY")}${daysSince !== null ? ` (قبل ${daysSince} يوم)` : ""}`
+          ? `آخر نسخة من هذا الجهاز: ${new Date(lastAt).toLocaleDateString("ar-SY-u-nu-latn")}${daysSince !== null ? ` (قبل ${daysSince} يوم)` : ""}`
           : "لم تُنشأ نسخة احتياطية من هذا الجهاز بعد"}
         {overdue && " — يُنصح بتنزيل نسخة جديدة"}
       </p>

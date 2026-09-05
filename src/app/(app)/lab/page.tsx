@@ -40,7 +40,7 @@ export default async function LabPage({
     return {
       id: t.id,
       patient_id: t.patient_id,
-      label: `${procedure?.name ?? t.diagnosis ?? "معالجة"} — ${new Date(t.performed_at).toLocaleDateString("ar-SY")}`,
+      label: `${procedure?.name ?? t.diagnosis ?? "معالجة"} — ${new Date(t.performed_at).toLocaleDateString("ar-SY-u-nu-latn")}`,
     };
   });
 

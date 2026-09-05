@@ -46,8 +46,8 @@ export default async function FollowUpsPage() {
   const appointmentItems: FollowUpItem[] = (appointments ?? []).map((a) => {
     const patient = a.patients as unknown as { id: string; name: string; phone: string | null };
     const dt = new Date(a.start_time);
-    const date = dt.toLocaleDateString("ar-SY");
-    const time = dt.toLocaleTimeString("ar-SY", { hour: "2-digit", minute: "2-digit" });
+    const date = dt.toLocaleDateString("ar-SY-u-nu-latn");
+    const time = dt.toLocaleTimeString("ar-SY-u-nu-latn", { hour: "2-digit", minute: "2-digit" });
     return {
       id: a.id,
       patientId: patient.id,

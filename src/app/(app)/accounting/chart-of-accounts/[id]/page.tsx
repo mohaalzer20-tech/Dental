@@ -67,7 +67,7 @@ export default async function AccountLedgerPage({ params }: { params: Promise<{ 
               rows.map((r) => (
                 <tr key={r.id} className="border-t border-border">
                   <td className="px-4 py-2.5 font-mono text-ink-muted">
-                    {r.entry ? new Date(r.entry.entry_date).toLocaleDateString("ar-SY") : "—"}
+                    {r.entry ? new Date(r.entry.entry_date).toLocaleDateString("ar-SY-u-nu-latn") : "—"}
                   </td>
                   <td className="px-4 py-2.5 font-mono text-ink">
                     {r.entry ? (

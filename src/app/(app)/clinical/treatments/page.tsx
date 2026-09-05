@@ -135,7 +135,7 @@ export default async function TreatmentsPage({
                     <td className="px-4 py-2.5 font-mono text-ink-muted">{t.tooth_numbers ?? "—"}</td>
                     <td className="px-4 py-2.5 font-mono text-ink-muted">{t.cost}</td>
                     <td className="px-4 py-2.5 font-mono text-ink-muted">
-                      {new Date(t.performed_at).toLocaleDateString("ar-SY")}
+                      {new Date(t.performed_at).toLocaleDateString("ar-SY-u-nu-latn")}
                     </td>
                     <td className="px-4 py-2.5 text-xs text-ink-muted">
                       <div className="flex flex-wrap gap-1">
