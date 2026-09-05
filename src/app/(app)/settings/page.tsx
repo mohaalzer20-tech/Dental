@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import AccountingSettingsForm from "./AccountingSettingsForm";
 import ClinicInfoForm from "./ClinicInfoForm";
+import BackupSection from "./BackupSection";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -51,6 +52,11 @@ export default async function SettingsPage() {
           licenseNumber={practice?.license_number ?? ""}
         />
         <p className="mt-3 text-sm text-ink-muted">البريد: {practice?.email}</p>
+      </div>
+
+      <div className="rounded-xl border border-border bg-surface p-5">
+        <h2 className="mb-2 text-sm font-semibold text-ink">النسخة الاحتياطية</h2>
+        <BackupSection />
       </div>
 
       <div className="rounded-xl border border-border bg-surface p-5">

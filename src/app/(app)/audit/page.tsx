@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import DeleteButton from "@/components/DeleteButton";
+import { restoreEntity } from "./actions";
+import { isSoftDelete } from "./restorable";
 
 const entityHrefBuilders: Record<string, (id: string) => string> = {
   patients: (id) => `/patients/${id}`,
@@ -30,7 +33,7 @@ export default async function AuditPage() {
 
   const { data: entries } = await supabase
     .from("audit_log")
-    .select("id, action, entity_type, entity_id, created_at, actor_id")
+    .select("id, action, entity_type, entity_id, created_at, actor_id, old_data, new_data")
     .order("created_at", { ascending: false })
     .limit(200);
 
@@ -50,20 +53,24 @@ export default async function AuditPage() {
               <th className="px-4 py-2.5 font-medium">العملية</th>
               <th className="px-4 py-2.5 font-medium">المعرّف</th>
               <th className="px-4 py-2.5 font-medium">التاريخ</th>
+              <th className="px-4 py-2.5 font-medium"></th>
             </tr>
           </thead>
           <tbody>
             {entries?.length ? (
-              entries.map((e) => (
+              entries.map((e) => {
+                const softDeleted = isSoftDelete(e);
+                const displayAction = softDeleted ? "delete" : e.action;
+                return (
                 <tr key={e.id} className="border-t border-border">
                   <td className="px-4 py-2.5 font-mono text-ink">{e.entity_type}</td>
                   <td className="px-4 py-2.5">
                     <span
                       className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                        actionClass[e.action] ?? "border-ink-muted text-ink-muted"
+                        actionClass[displayAction] ?? "border-ink-muted text-ink-muted"
                       }`}
                     >
-                      {actionLabels[e.action] ?? e.action}
+                      {actionLabels[displayAction] ?? displayAction}
                     </span>
                   </td>
                   <td className="px-4 py-2.5 font-mono text-xs text-ink-muted">
@@ -81,11 +88,22 @@ export default async function AuditPage() {
                   <td className="px-4 py-2.5 font-mono text-ink-muted">
                     {new Date(e.created_at).toLocaleString("ar-SY")}
                   </td>
+                  <td className="px-4 py-2.5">
+                    {softDeleted && (
+                      <DeleteButton
+                        action={restoreEntity.bind(null, e.entity_type, String(e.entity_id))}
+                        confirmMessage="استرجاع هذا السجل؟ بيرجع يظهر بكل القوائم من جديد."
+                        label="استرجاع"
+                        className="rounded-lg border border-border px-3 py-1.5 text-sm text-ink-muted transition-colors hover:border-primary hover:text-primary-strong disabled:opacity-50"
+                      />
+                    )}
+                  </td>
                 </tr>
-              ))
+                );
+              })
             ) : (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-ink-muted">
+                <td colSpan={5} className="px-4 py-8 text-center text-ink-muted">
                   ما في حركات مسجّلة بعد
                 </td>
               </tr>
