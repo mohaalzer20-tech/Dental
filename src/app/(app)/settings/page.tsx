@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import AccountingSettingsForm from "./AccountingSettingsForm";
 import ClinicInfoForm from "./ClinicInfoForm";
 import BackupSection from "./BackupSection";
+import WhatsappConnect from "./WhatsappConnect";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -58,6 +59,13 @@ export default async function SettingsPage() {
         <h2 className="mb-2 text-sm font-semibold text-ink">النسخة الاحتياطية</h2>
         <BackupSection />
       </div>
+
+      {practice && (
+        <div className="rounded-xl border border-border bg-surface p-5">
+          <h2 className="mb-2 text-sm font-semibold text-ink">متابعة المرضى عبر واتساب (تجريبي)</h2>
+          <WhatsappConnect practiceId={practice.id} />
+        </div>
+      )}
 
       <div className="rounded-xl border border-border bg-surface p-5">
         <h2 className="mb-3 text-sm font-semibold text-ink">إعدادات المحاسبة</h2>

@@ -2,6 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { connectWhatsapp, disconnectWhatsapp, getWhatsappStatus } from "@/lib/whatsapp";
+
+export async function connectWhatsappAction(practiceId: string) {
+  await connectWhatsapp(practiceId);
+}
+
+export async function disconnectWhatsappAction(practiceId: string) {
+  await disconnectWhatsapp(practiceId);
+}
+
+export async function getWhatsappStatusAction(practiceId: string) {
+  return getWhatsappStatus(practiceId);
+}
 
 export async function updateClinicInfo(_prevState: { error: string } | null, formData: FormData) {
   const clinicName = String(formData.get("clinic_name") ?? "").trim();

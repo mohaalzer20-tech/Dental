@@ -1,5 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service";
-import { sendSms } from "@/lib/sms";
+import { sendReminder } from "@/lib/messaging";
 
 type SendResult = "sent" | "failed" | "skipped_no_phone";
 
@@ -42,11 +42,11 @@ async function logAndSend(
     return "skipped_no_phone";
   }
 
-  const result = await sendSms(params.phone, params.body);
+  const result = await sendReminder(params.practiceId, params.phone, params.body);
   await supabase.from("message_log").insert({
     practice_id: params.practiceId,
     patient_id: params.patientId,
-    channel: "sms",
+    channel: result.channel,
     body: params.body,
     status: result.success ? "sent" : "failed",
     sent_at: result.success ? new Date().toISOString() : null,
