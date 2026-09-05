@@ -75,3 +75,10 @@ export async function togglePaymentReminders(id: string, enabled: boolean) {
   revalidatePath(`/patients/${id}`);
   revalidatePath("/follow-ups");
 }
+
+export async function toggleAppointmentReminders(id: string, enabled: boolean) {
+  const supabase = await createClient();
+  await supabase.from("patients").update({ appointment_reminders_enabled: enabled }).eq("id", id);
+  revalidatePath(`/patients/${id}`);
+  revalidatePath("/follow-ups");
+}

@@ -1,23 +1,32 @@
 "use client";
 
 import { useTransition } from "react";
-import { togglePaymentReminders } from "../actions";
 
-export default function PaymentReminderToggle({ id, enabled }: { id: string; enabled: boolean }) {
+export default function ReminderToggle({
+  enabled,
+  onLabel,
+  offLabel,
+  onToggle,
+}: {
+  enabled: boolean;
+  onLabel: string;
+  offLabel: string;
+  onToggle: (enabled: boolean) => Promise<void>;
+}) {
   const [pending, startTransition] = useTransition();
 
   return (
     <button
       type="button"
       disabled={pending}
-      onClick={() => startTransition(() => togglePaymentReminders(id, !enabled))}
+      onClick={() => startTransition(() => onToggle(!enabled))}
       className={`self-start rounded-lg border px-3 py-1.5 text-sm transition-colors disabled:opacity-50 ${
         enabled
           ? "border-border text-ink-muted hover:border-danger hover:text-danger"
           : "border-primary text-primary-strong"
       }`}
     >
-      {pending ? "..." : enabled ? "إيقاف متابعة الدفعات" : "تفعيل متابعة الدفعات"}
+      {pending ? "..." : enabled ? onLabel : offLabel}
     </button>
   );
 }

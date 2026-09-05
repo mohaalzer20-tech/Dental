@@ -10,9 +10,10 @@ export default async function FollowUpsPage() {
   const [{ data: recalls }, { data: invoices }] = await Promise.all([
     supabase
       .from("appointments")
-      .select("id, recall_date, patients(id, name)")
+      .select("id, recall_date, patients!inner(id, name, appointment_reminders_enabled)")
       .is("deleted_at", null)
       .eq("recall_completed", false)
+      .eq("patients.appointment_reminders_enabled", true)
       .not("recall_date", "is", null)
       .lte("recall_date", today)
       .order("recall_date", { ascending: true }),

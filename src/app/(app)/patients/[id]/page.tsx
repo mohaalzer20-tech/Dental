@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { deletePatient } from "../actions";
+import { deletePatient, togglePaymentReminders, toggleAppointmentReminders } from "../actions";
 import DeleteButton from "@/components/DeleteButton";
 import PatientEditForm from "./PatientEditForm";
-import PaymentReminderToggle from "./PaymentReminderToggle";
+import ReminderToggle from "./ReminderToggle";
 import { conditionLabels } from "../../clinical/conditionLabels";
 
 const appointmentStatusLabels: Record<string, string> = {
@@ -44,7 +44,7 @@ export default async function PatientProfilePage({ params }: { params: Promise<{
 
   const { data: patient } = await supabase
     .from("patients")
-    .select("id, name, phone, dob, notes, payment_reminders_enabled, created_at")
+    .select("id, name, phone, dob, notes, payment_reminders_enabled, appointment_reminders_enabled, created_at")
     .eq("id", id)
     .is("deleted_at", null)
     .single();
@@ -125,7 +125,18 @@ export default async function PatientProfilePage({ params }: { params: Promise<{
           {patient.notes && <p className="mt-1 text-sm text-ink-muted">ملاحظات: {patient.notes}</p>}
         </div>
         <div className="flex flex-wrap gap-2">
-          <PaymentReminderToggle id={patient.id} enabled={patient.payment_reminders_enabled} />
+          <ReminderToggle
+            enabled={patient.payment_reminders_enabled}
+            onLabel="إيقاف متابعة الدفعات"
+            offLabel="تفعيل متابعة الدفعات"
+            onToggle={togglePaymentReminders.bind(null, patient.id)}
+          />
+          <ReminderToggle
+            enabled={patient.appointment_reminders_enabled}
+            onLabel="إيقاف متابعة المواعيد"
+            offLabel="تفعيل متابعة المواعيد"
+            onToggle={toggleAppointmentReminders.bind(null, patient.id)}
+          />
           <DeleteButton
             action={deletePatient.bind(null, patient.id)}
             confirmMessage="متأكد إنك تبي تحذف هذا المريض؟ بيختفي من كل القوائم بس يضل بسجل التدقيق."
