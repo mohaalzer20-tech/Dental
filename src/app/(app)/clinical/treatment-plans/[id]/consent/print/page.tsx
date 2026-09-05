@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import ClinicLetterhead from "@/components/ClinicLetterhead";
 import PrintButton from "@/components/PrintButton";
@@ -21,18 +20,6 @@ export default async function TreatmentPlanConsentPrintPage({ params }: { params
 
   if (!plan) {
     return <p className="text-ink-muted">الخطة غير موجودة</p>;
-  }
-
-  if (!plan.accepted_at) {
-    return (
-      <p className="text-ink-muted">
-        لم تتم الموافقة على هذه الخطة بعد. الرجاء تسجيل موافقة المريض أولاً من{" "}
-        <Link href={`/clinical/treatment-plans/${id}`} className="underline underline-offset-2">
-          صفحة خطة العلاج
-        </Link>
-        .
-      </p>
-    );
   }
 
   const patient = plan.patients as unknown as { name: string; phone: string | null; dob: string | null } | null;
@@ -78,13 +65,15 @@ export default async function TreatmentPlanConsentPrintPage({ params }: { params
           بأهدافه والمخاطر والمضاعفات المحتملة له والبدائل المتاحة، وقد أُتيحت لي الفرصة لطرح الأسئلة والحصول على
           إجابات وافية بشأنها. وبناءً عليه، أوافق طوعاً وبكامل إرادتي على إجراء العلاج المذكور من قبل الطبيب المعالج.
         </p>
-        <p className="mt-3 text-ink-muted">
-          الموافقة مسجّلة باسم: <span className="font-medium text-ink">{plan.accepted_by_name}</span> بتاريخ{" "}
-          {new Date(plan.accepted_at).toLocaleString("ar-SY")}
-        </p>
+        {plan.accepted_at && (
+          <p className="mt-3 text-ink-muted">
+            الموافقة مسجّلة باسم: <span className="font-medium text-ink">{plan.accepted_by_name}</span> بتاريخ{" "}
+            {new Date(plan.accepted_at).toLocaleString("ar-SY")}
+          </p>
+        )}
       </div>
 
-      <SignatureBlock labels={["توقيع المريض / ولي الأمر", "توقيع الشاهد", "توقيع الطبيب المعالج"]} />
+      <SignatureBlock labels={["المريض / ولي الأمر", "الشاهد", "الطبيب المعالج"]} withName />
     </div>
   );
 }
