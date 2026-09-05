@@ -1,13 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import ClinicLetterhead from "@/components/ClinicLetterhead";
 import PrintButton from "@/components/PrintButton";
+import SignatureBlock from "@/components/SignatureBlock";
 
 export default async function InvoicePrintPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
 
   const [{ data: practice }, { data: invoice }, { data: items }] = await Promise.all([
-    supabase.from("practices").select("clinic_name, doctor_name, address, phone").single(),
+    supabase.from("practices").select("clinic_name, doctor_name, address, phone, tax_number").single(),
     supabase
       .from("invoices")
       .select(
@@ -27,7 +28,7 @@ export default async function InvoicePrintPage({ params }: { params: Promise<{ i
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 print:max-w-none">
-      <ClinicLetterhead practice={practice} />
+      <ClinicLetterhead practice={practice} taxNumber={practice?.tax_number} />
 
       <div className="flex items-start justify-between">
         <div>
@@ -75,6 +76,8 @@ export default async function InvoicePrintPage({ params }: { params: Promise<{ i
           المتبقي: <span className="font-mono text-ink">{invoice.total_amount - invoice.paid_amount}</span>
         </p>
       </div>
+
+      <SignatureBlock labels={["توقيع المريض", "توقيع وختم العيادة"]} />
     </div>
   );
 }

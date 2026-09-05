@@ -55,7 +55,17 @@ export default async function TreatmentPlanDetailPage({
           </p>
           <h1 className="mt-1 text-2xl font-bold text-ink">{plan.title}</h1>
         </div>
-        <PlanStatusSelect id={plan.id} status={plan.status} />
+        <div className="flex items-center gap-3">
+          {plan.accepted_at && (
+            <Link
+              href={`/clinical/treatment-plans/${id}/consent/print`}
+              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-surface-alt"
+            >
+              طباعة نموذج الموافقة
+            </Link>
+          )}
+          <PlanStatusSelect id={plan.id} status={plan.status} />
+        </div>
       </div>
 
       <PlanAcceptanceForm planId={plan.id} acceptedAt={plan.accepted_at} acceptedByName={plan.accepted_by_name} />

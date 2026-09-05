@@ -1,16 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
 import ClinicLetterhead from "@/components/ClinicLetterhead";
 import PrintButton from "@/components/PrintButton";
+import SignatureBlock from "@/components/SignatureBlock";
 
 export default async function PrescriptionPrintPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
 
   const [{ data: practice }, { data: prescription }, { data: items }] = await Promise.all([
-    supabase.from("practices").select("clinic_name, doctor_name, address, phone").single(),
+    supabase.from("practices").select("clinic_name, doctor_name, address, phone, license_number").single(),
     supabase
       .from("prescriptions")
-      .select("id, diagnosis, created_at, patients(name, phone, dob)")
+      .select("id, diagnosis, created_at, valid_until, patients(name, phone, dob)")
       .eq("id", id)
       .is("deleted_at", null)
       .single(),
@@ -25,7 +26,7 @@ export default async function PrescriptionPrintPage({ params }: { params: Promis
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 print:max-w-none">
-      <ClinicLetterhead practice={practice} />
+      <ClinicLetterhead practice={practice} licenseNumber={practice?.license_number} />
 
       <div className="flex items-start justify-between">
         <div>
@@ -33,6 +34,11 @@ export default async function PrescriptionPrintPage({ params }: { params: Promis
           <p className="text-sm text-ink-muted">
             التاريخ: {new Date(prescription.created_at).toLocaleDateString("ar-SY")}
           </p>
+          {prescription.valid_until && (
+            <p className="text-sm text-ink-muted">
+              صالحة حتى: {new Date(prescription.valid_until).toLocaleDateString("ar-SY")}
+            </p>
+          )}
         </div>
         <PrintButton />
       </div>
@@ -44,26 +50,31 @@ export default async function PrescriptionPrintPage({ params }: { params: Promis
         {prescription.diagnosis && <p className="mt-1 text-ink-muted">التشخيص: {prescription.diagnosis}</p>}
       </div>
 
-      <table className="w-full text-right text-sm">
-        <thead className="text-ink-muted">
-          <tr>
-            <th className="border-b border-border pb-2 font-medium">الدواء</th>
-            <th className="border-b border-border pb-2 font-medium">الجرعة</th>
-            <th className="border-b border-border pb-2 font-medium">عدد المرات</th>
-            <th className="border-b border-border pb-2 font-medium">المدة</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items?.map((it, i) => (
-            <tr key={i} className="border-b border-border">
-              <td className="py-2 text-ink">{it.medication_name}</td>
-              <td className="py-2 text-ink-muted">{it.dosage ?? "—"}</td>
-              <td className="py-2 text-ink-muted">{it.frequency ?? "—"}</td>
-              <td className="py-2 text-ink-muted">{it.duration ?? "—"}</td>
+      <div>
+        <p className="mb-2 text-2xl font-bold text-primary-strong">Rx</p>
+        <table className="w-full text-right text-sm">
+          <thead className="text-ink-muted">
+            <tr>
+              <th className="border-b border-border pb-2 font-medium">الدواء</th>
+              <th className="border-b border-border pb-2 font-medium">الجرعة</th>
+              <th className="border-b border-border pb-2 font-medium">عدد المرات</th>
+              <th className="border-b border-border pb-2 font-medium">المدة</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items?.map((it, i) => (
+              <tr key={i} className="border-b border-border">
+                <td className="py-2 text-ink">{it.medication_name}</td>
+                <td className="py-2 text-ink-muted">{it.dosage ?? "—"}</td>
+                <td className="py-2 text-ink-muted">{it.frequency ?? "—"}</td>
+                <td className="py-2 text-ink-muted">{it.duration ?? "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <SignatureBlock labels={["توقيع وختم الطبيب"]} />
     </div>
   );
 }

@@ -8,6 +8,8 @@ export async function updateClinicInfo(_prevState: { error: string } | null, for
   const doctorName = String(formData.get("doctor_name") ?? "").trim();
   const address = String(formData.get("address") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
+  const taxNumber = String(formData.get("tax_number") ?? "").trim();
+  const licenseNumber = String(formData.get("license_number") ?? "").trim();
 
   if (!doctorName) {
     return { error: "الرجاء كتابة اسم الطبيب" };
@@ -27,6 +29,8 @@ export async function updateClinicInfo(_prevState: { error: string } | null, for
       doctor_name: doctorName,
       address: address || null,
       phone: phone || null,
+      tax_number: taxNumber || null,
+      license_number: licenseNumber || null,
     })
     .eq("id", practice.id);
 

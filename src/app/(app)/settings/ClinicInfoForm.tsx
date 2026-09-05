@@ -11,11 +11,15 @@ export default function ClinicInfoForm({
   doctorName,
   address,
   phone,
+  taxNumber,
+  licenseNumber,
 }: {
   clinicName: string;
   doctorName: string;
   address: string;
   phone: string;
+  taxNumber: string;
+  licenseNumber: string;
 }) {
   const [state, formAction, pending] = useActionState(updateClinicInfo, null);
 
@@ -37,6 +41,14 @@ export default function ClinicInfoForm({
         <label className="flex flex-col gap-1 text-sm text-ink-muted">
           رقم الهاتف
           <input name="phone" type="text" defaultValue={phone} className={inputClass} />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-ink-muted">
+          الرقم الضريبي للعيادة
+          <input name="tax_number" type="text" defaultValue={taxNumber} className={inputClass} />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-ink-muted">
+          رقم إجازة مزاولة المهنة (النقابة)
+          <input name="license_number" type="text" defaultValue={licenseNumber} className={inputClass} />
         </label>
       </div>
 
