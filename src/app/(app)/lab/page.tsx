@@ -17,21 +17,27 @@ export default async function LabPage({
 
   let ordersQuery = supabase
     .from("lab_orders")
-    .select("id, description, status, cost, sent_date, patients(id, name), lab_vendors(name), treatments(diagnosis, procedures(name))")
+    .select(
+      "id, description, status, cost, sent_date, expected_date, patients(id, name), lab_vendors(name), treatments(diagnosis, procedures(name)), treatment_plans(title)",
+    )
     .is("deleted_at", null)
     .order("sent_date", { ascending: false });
   if (patient_id) ordersQuery = ordersQuery.eq("patient_id", patient_id);
 
-  const [{ data: orders }, { data: patients }, { data: vendors }, { data: treatmentRows }] = await Promise.all([
-    ordersQuery,
-    supabase.from("patients").select("id, name").is("deleted_at", null).order("name"),
-    supabase.from("lab_vendors").select("id, name, phone").is("deleted_at", null).order("name"),
-    supabase
-      .from("treatments")
-      .select("id, patient_id, diagnosis, performed_at, procedures(name)")
-      .is("deleted_at", null)
-      .order("performed_at", { ascending: false }),
-  ]);
+  const [{ data: orders }, { data: patients }, { data: vendors }, { data: treatmentRows }, { data: planRows }] =
+    await Promise.all([
+      ordersQuery,
+      supabase.from("patients").select("id, name").is("deleted_at", null).order("name"),
+      supabase.from("lab_vendors").select("id, name, phone").is("deleted_at", null).order("name"),
+      supabase
+        .from("treatments")
+        .select("id, patient_id, diagnosis, performed_at, procedures(name)")
+        .is("deleted_at", null)
+        .order("performed_at", { ascending: false }),
+      supabase.from("treatment_plans").select("id, patient_id, title").is("deleted_at", null).order("title"),
+    ]);
+
+  const plans = (planRows ?? []).map((p) => ({ id: p.id, patient_id: p.patient_id, title: p.title }));
 
   const filteredPatientName = patient_id ? (patients ?? []).find((p) => p.id === patient_id)?.name : null;
 
@@ -48,7 +54,7 @@ export default async function LabPage({
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">{orders?.length ?? 0} أمر</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">المختبر</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">المختبر</h1>
         {filteredPatientName && (
           <p className="mt-1 text-sm text-ink-muted">
             مفلترة لـ {filteredPatientName} —{" "}
@@ -59,7 +65,7 @@ export default async function LabPage({
         )}
       </div>
 
-      <LabOrderForm patients={patients ?? []} vendors={vendors ?? []} treatments={treatments} />
+      <LabOrderForm patients={patients ?? []} vendors={vendors ?? []} treatments={treatments} plans={plans} />
       <VendorForm />
 
       <div className="overflow-hidden rounded-xl border border-border bg-surface">
@@ -70,6 +76,7 @@ export default async function LabPage({
               <th className="px-4 py-2.5 font-medium">المخبر</th>
               <th className="px-4 py-2.5 font-medium">الوصف</th>
               <th className="px-4 py-2.5 font-medium">التكلفة</th>
+              <th className="px-4 py-2.5 font-medium">تاريخ الاستلام المتوقع</th>
               <th className="px-4 py-2.5 font-medium">الحالة</th>
               <th className="px-4 py-2.5 font-medium"></th>
             </tr>
@@ -104,6 +111,7 @@ export default async function LabPage({
                       })()}
                     </td>
                     <td className="px-4 py-2.5 font-mono text-ink-muted">{o.cost}</td>
+                    <td className="px-4 py-2.5 font-mono text-ink-muted">{o.expected_date ?? "—"}</td>
                     <td className="px-4 py-2.5">
                       <StatusSelect orderId={o.id} status={o.status} />
                     </td>
@@ -115,7 +123,7 @@ export default async function LabPage({
               })
             ) : (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-ink-muted">
+                <td colSpan={7} className="px-4 py-8 text-center text-ink-muted">
                   ما في أوامر مخبر بعد
                 </td>
               </tr>

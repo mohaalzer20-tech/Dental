@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import DeleteButton from "@/components/DeleteButton";
+import AllergyBanner from "@/components/AllergyBanner";
+import StatusPill from "@/components/StatusPill";
 import ChartForm from "./ChartForm";
+import ChartPanel from "./ChartPanel";
+import type { ToothStatus } from "./OdontogramChart";
 import { deleteChartEntry, resolveChartEntry } from "./actions";
 import ResolveButton from "./ResolveButton";
 import { conditionLabels } from "../conditionLabels";
@@ -21,18 +25,52 @@ export default async function DentalChartPage({
     .order("diagnosed_date", { ascending: false });
   if (patient_id) entriesQuery = entriesQuery.eq("patient_id", patient_id);
 
-  const [{ data: entries }, { data: patients }] = await Promise.all([
+  const [{ data: entries }, { data: patients }, patientDetail] = await Promise.all([
     entriesQuery,
     supabase.from("patients").select("id, name").is("deleted_at", null).order("name"),
+    patient_id
+      ? supabase.from("patients").select("allergies").eq("id", patient_id).single()
+      : Promise.resolve({ data: null }),
   ]);
 
   const filteredPatientName = patient_id ? (patients ?? []).find((p) => p.id === patient_id)?.name : null;
+
+  const toothStatuses: Record<number, ToothStatus> = {};
+  if (patient_id) {
+    const [{ data: planItems }, { data: treatments }] = await Promise.all([
+      supabase
+        .from("treatment_plan_items")
+        .select("tooth_numbers, status, treatment_plans!inner(patient_id)")
+        .eq("treatment_plans.patient_id", patient_id),
+      supabase.from("treatments").select("tooth_numbers").eq("patient_id", patient_id).is("deleted_at", null),
+    ]);
+
+    for (const e of entries ?? []) {
+      if (toothStatuses[e.tooth_number] !== "completed") {
+        toothStatuses[e.tooth_number] = e.resolved_date ? "completed" : "proposed";
+      }
+    }
+    for (const item of planItems ?? []) {
+      const tone: ToothStatus = item.status === "completed" ? "completed" : "proposed";
+      for (const raw of item.tooth_numbers ?? []) {
+        const n = Number(raw);
+        if (!n || toothStatuses[n] === "completed") continue;
+        toothStatuses[n] = tone;
+      }
+    }
+    for (const t of treatments ?? []) {
+      for (const raw of (t.tooth_numbers ?? "").split(",")) {
+        const n = Number(raw.trim());
+        if (n) toothStatuses[n] = "completed";
+      }
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">{entries?.length ?? 0} سجل</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">رسم الأسنان (Odontogram)</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">رسم الأسنان (Odontogram)</h1>
         {filteredPatientName && (
           <p className="mt-1 text-sm text-ink-muted">
             مفلترة لـ {filteredPatientName} —{" "}
@@ -43,7 +81,18 @@ export default async function DentalChartPage({
         )}
       </div>
 
-      <ChartForm patients={patients ?? []} />
+      {patientDetail?.data && <AllergyBanner allergies={patientDetail.data.allergies} />}
+
+      {patient_id ? (
+        <ChartPanel patients={patients ?? []} patientId={patient_id} statuses={toothStatuses} />
+      ) : (
+        <>
+          <p className="text-sm text-ink-muted">
+            اختر مريضاً من صفحة ملفه لعرض رسم الأسنان التفاعلي، أو سجّل حالة مباشرة أدناه.
+          </p>
+          <ChartForm patients={patients ?? []} />
+        </>
+      )}
 
       <div className="overflow-hidden rounded-xl border border-border bg-surface">
         <table className="w-full text-right text-sm">
@@ -79,13 +128,9 @@ export default async function DentalChartPage({
                     <td className="px-4 py-2.5 text-ink-muted">{e.notes ?? "—"}</td>
                     <td className="px-4 py-2.5 font-mono text-ink-muted">{e.diagnosed_date}</td>
                     <td className="px-4 py-2.5">
-                      <span
-                        className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                          resolved ? "border-primary text-primary-strong" : "border-accent text-accent"
-                        }`}
-                      >
+                      <StatusPill tone={resolved ? "primary" : "accent"}>
                         {resolved ? `تم العلاج (${e.resolved_date})` : "نشط"}
-                      </span>
+                      </StatusPill>
                     </td>
                     <td className="px-4 py-2.5">
                       <div className="flex gap-2">

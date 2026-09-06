@@ -64,7 +64,7 @@ export default function FollowUpsClient({
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">متابعة دورية</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">المتابعة الدورية</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">المتابعة الدورية</h1>
         <p className="mt-1 text-sm text-ink-muted">
           قائمة عمل يومية — الرسائل تُفتح جاهزة بواتساب وإنت يلي بتضغط إرسال، ما تُرسل تلقائياً.
         </p>
@@ -91,8 +91,7 @@ export default function FollowUpsClient({
           <button
             type="button"
             onClick={() => setBulkOpen(true)}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-            style={{ background: "#25D366" }}
+            className="rounded-lg bg-whatsapp px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             إرسال للمحددين
           </button>
@@ -132,8 +131,7 @@ export default function FollowUpsClient({
                         <button
                           type="button"
                           onClick={() => setOpenRowId(openRowId === item.id ? null : item.id)}
-                          className="rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors"
-                          style={{ borderColor: "#25D366", color: "#25D366" }}
+                          className="rounded-lg border border-whatsapp px-3 py-1.5 text-sm font-medium text-whatsapp transition-colors"
                         >
                           واتساب
                         </button>

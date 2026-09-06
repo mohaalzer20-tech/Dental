@@ -21,6 +21,7 @@ const groups: NavGroup[] = [
       { href: "/clinical/dental-chart", label: "رسم الأسنان (تشخيص)", icon: GridIcon },
       { href: "/clinical/treatment-plans", label: "خطط العلاج (اقتراح)", icon: ClipboardIcon },
       { href: "/clinical/treatments", label: "المعالجات (تنفيذ)", icon: ToothIcon },
+      { href: "/clinical/perio", label: "الفحص اللثوي", icon: GridIcon },
       { href: "/clinical/prescriptions", label: "الوصفات", icon: PillIcon },
       { href: "/lab", label: "المختبر", icon: FlaskIcon },
     ],
@@ -33,6 +34,7 @@ const groups: NavGroup[] = [
       { href: "/accounting/chart-of-accounts", label: "شجرة الحسابات", icon: LedgerIcon },
       { href: "/accounting/journal", label: "القيود اليومية", icon: JournalIcon },
       { href: "/accounting/expenses", label: "المصروفات", icon: ExpenseIcon },
+      { href: "/accounting/cash-reconciliation", label: "التسوية النقدية اليومية", icon: ExpenseIcon },
       { href: "/accounting/reports", label: "التقارير المالية", icon: ReportIcon },
     ],
   },
@@ -99,7 +101,7 @@ function HomeIcon({ className }: { className?: string }) {
   );
 }
 
-function UsersIcon({ className }: { className?: string }) {
+export function UsersIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className}>
       <circle cx="9" cy="8" r="3" />
@@ -110,7 +112,7 @@ function UsersIcon({ className }: { className?: string }) {
   );
 }
 
-function CalendarIcon({ className }: { className?: string }) {
+export function CalendarIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className}>
       <rect x="3.5" y="5" width="17" height="15" rx="2" />
@@ -120,7 +122,7 @@ function CalendarIcon({ className }: { className?: string }) {
   );
 }
 
-function ClipboardIcon({ className }: { className?: string }) {
+export function ClipboardIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className}>
       <rect x="5" y="4" width="14" height="17" rx="2" />
@@ -130,7 +132,7 @@ function ClipboardIcon({ className }: { className?: string }) {
   );
 }
 
-function ToothIcon({ className }: { className?: string }) {
+export function ToothIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className}>
       <path d="M12 3c-3 0-5 2-5 5 0 3 1 4 1 8 0 2 1 3 2 3s1-3 2-6c0-1 1-1 1 0 1 3 1 6 2 6s2-1 2-3c0-4 1-5 1-8 0-3-2-5-5-5-1 0-1 .5-1 .5S13 3 12 3Z" />
@@ -256,7 +258,7 @@ function JournalIcon({ className }: { className?: string }) {
   );
 }
 
-function ExpenseIcon({ className }: { className?: string }) {
+export function ExpenseIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className={className}>
       <circle cx="12" cy="12" r="8.5" />

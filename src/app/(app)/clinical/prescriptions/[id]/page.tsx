@@ -39,7 +39,7 @@ export default async function PrescriptionDetailPage({
               "—"
             )}
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-ink">وصفة طبية</h1>
+          <h1 className="mt-1 font-display text-2xl font-bold text-ink">وصفة طبية</h1>
           {prescription.diagnosis && <p className="text-sm text-ink-muted">التشخيص: {prescription.diagnosis}</p>}
         </div>
         <Link

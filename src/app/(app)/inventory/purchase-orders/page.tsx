@@ -29,7 +29,7 @@ export default async function PurchaseOrdersPage() {
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">{orders?.length ?? 0} أمر شراء</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">أوامر الشراء</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">أوامر الشراء</h1>
       </div>
 
       <POForm suppliers={suppliers ?? []} />

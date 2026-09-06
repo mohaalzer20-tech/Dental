@@ -36,7 +36,10 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute =
     request.nextUrl.pathname.startsWith("/book") ||
     request.nextUrl.pathname.startsWith("/track") ||
+    request.nextUrl.pathname.startsWith("/intake") ||
     request.nextUrl.pathname.startsWith("/staff/accept-invite");
+
+  const isSubscriptionRoute = request.nextUrl.pathname.startsWith("/subscription-expired");
 
   if (!user && !isAuthRoute && !isPublicRoute) {
     const url = request.nextUrl.clone();
@@ -48,6 +51,30 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
+  }
+
+  if (user && !isAuthRoute && !isPublicRoute && !isSubscriptionRoute) {
+    const { data: me } = await supabase
+      .from("users")
+      .select("practices(subscription_status, trial_ends_at)")
+      .eq("id", user.id)
+      .single();
+    const practice = me?.practices as unknown as
+      | { subscription_status: string; trial_ends_at: string | null }
+      | null;
+
+    const trialExpired =
+      practice?.subscription_status === "trial" &&
+      !!practice.trial_ends_at &&
+      new Date(practice.trial_ends_at) < new Date();
+    const blocked =
+      practice?.subscription_status === "past_due" || practice?.subscription_status === "canceled" || trialExpired;
+
+    if (blocked && !request.nextUrl.pathname.startsWith("/settings")) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/subscription-expired";
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

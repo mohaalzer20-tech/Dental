@@ -9,7 +9,7 @@ export default function LoginPage() {
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <h1 className="text-xl font-bold text-ink">تسجيل الدخول</h1>
+      <h1 className="font-display text-xl font-bold text-ink">تسجيل الدخول</h1>
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm text-ink-muted">

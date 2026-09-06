@@ -44,7 +44,7 @@ export default async function AccountingOverviewPage() {
     <div className="flex flex-col gap-8">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">المحاسبة</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">نظرة عامة</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">نظرة عامة</h1>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

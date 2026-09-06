@@ -27,7 +27,7 @@ export default async function InventoryPage() {
       <div className="flex items-center justify-between">
         <div>
           <p className="font-mono text-xs tracking-wide text-ink-muted">{items?.length ?? 0} صنف</p>
-          <h1 className="mt-1 text-2xl font-bold text-ink">المخزون</h1>
+          <h1 className="mt-1 font-display text-2xl font-bold text-ink">المخزون</h1>
         </div>
         <div className="flex gap-3 text-sm">
           <Link href="/inventory/suppliers" className="text-primary-strong underline underline-offset-2">

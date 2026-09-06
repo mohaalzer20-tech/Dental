@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import DeleteButton from "@/components/DeleteButton";
+import StatusPill, { type StatusTone } from "@/components/StatusPill";
 import InvoiceForm from "./InvoiceForm";
 import { deleteInvoice } from "./actions";
 
-const statusConfig: Record<string, { label: string; className: string }> = {
-  unpaid: { label: "غير مدفوعة", className: "border-danger text-danger" },
-  partial: { label: "مدفوعة جزئياً", className: "border-accent text-accent" },
-  paid: { label: "مدفوعة", className: "border-primary text-primary-strong" },
-  cancelled: { label: "ملغاة", className: "border-ink-muted text-ink-muted" },
+const statusConfig: Record<string, { label: string; tone: StatusTone }> = {
+  unpaid: { label: "غير مدفوعة", tone: "danger" },
+  partial: { label: "مدفوعة جزئياً", tone: "accent" },
+  paid: { label: "مدفوعة", tone: "primary" },
+  cancelled: { label: "ملغاة", tone: "muted" },
 };
 
 export default async function InvoicesPage({
@@ -38,7 +39,7 @@ export default async function InvoicesPage({
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">{invoices?.length ?? 0} فاتورة</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">الفواتير</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">الفواتير</h1>
         {filteredPatientName && (
           <p className="mt-1 text-sm text-ink-muted">
             مفلترة لـ {filteredPatientName} —{" "}
@@ -87,11 +88,7 @@ export default async function InvoicesPage({
                     <td className="px-4 py-2.5 font-mono text-ink-muted">{inv.total_amount}</td>
                     <td className="px-4 py-2.5 font-mono text-ink-muted">{inv.paid_amount}</td>
                     <td className="px-4 py-2.5">
-                      <span
-                        className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${status.className}`}
-                      >
-                        {status.label}
-                      </span>
+                      <StatusPill tone={status.tone}>{status.label}</StatusPill>
                     </td>
                     <td className="px-4 py-2.5">
                       <DeleteButton action={deleteInvoice.bind(null, inv.id)} />

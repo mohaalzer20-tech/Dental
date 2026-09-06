@@ -8,6 +8,9 @@ export async function addSupplier(_prevState: { error: string } | null, formData
   const name = String(formData.get("name") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const contactPerson = String(formData.get("contact_person") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const address = String(formData.get("address") ?? "").trim();
+  const paymentTerms = String(formData.get("payment_terms") ?? "").trim();
 
   if (!name) {
     return { error: "اسم المورد مطلوب" };
@@ -18,6 +21,9 @@ export async function addSupplier(_prevState: { error: string } | null, formData
     name,
     phone: phone || null,
     contact_person: contactPerson || null,
+    email: email || null,
+    address: address || null,
+    payment_terms: paymentTerms || null,
   });
 
   if (error) {
@@ -33,6 +39,9 @@ export async function updateSupplier(_prevState: { error: string } | null, formD
   const name = String(formData.get("name") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const contactPerson = String(formData.get("contact_person") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const address = String(formData.get("address") ?? "").trim();
+  const paymentTerms = String(formData.get("payment_terms") ?? "").trim();
 
   if (!name) {
     return { error: "اسم المورد مطلوب" };
@@ -41,7 +50,14 @@ export async function updateSupplier(_prevState: { error: string } | null, formD
   const supabase = await createClient();
   const { error } = await supabase
     .from("suppliers")
-    .update({ name, phone: phone || null, contact_person: contactPerson || null })
+    .update({
+      name,
+      phone: phone || null,
+      contact_person: contactPerson || null,
+      email: email || null,
+      address: address || null,
+      payment_terms: paymentTerms || null,
+    })
     .eq("id", id);
 
   if (error) {

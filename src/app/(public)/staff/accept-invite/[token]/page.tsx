@@ -31,7 +31,7 @@ export default async function AcceptInvitePage({ params }: { params: Promise<{ t
   return (
     <div className="flex flex-col gap-5">
       <div className="text-center">
-        <h1 className="text-lg font-bold text-ink">أهلاً {member.full_name}</h1>
+        <h1 className="font-display text-lg font-bold text-ink">أهلاً {member.full_name}</h1>
         <p className="mt-1 text-sm text-ink-muted">
           تمت دعوتك كـ{roleLabels[member.role] ?? member.role} بعيادة {practice?.clinic_name || practice?.doctor_name}
         </p>

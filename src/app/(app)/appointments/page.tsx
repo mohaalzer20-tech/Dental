@@ -4,15 +4,65 @@ import DeleteButton from "@/components/DeleteButton";
 import AppointmentForm from "./AppointmentForm";
 import AppointmentStatusSelect from "./AppointmentStatusSelect";
 import RecallDateInput from "./RecallDateInput";
+import WeekCalendar, { type CalendarAppointment } from "./WeekCalendar";
+import AppointmentTypeManager from "./AppointmentTypeManager";
 import { deleteAppointment } from "./actions";
+
+function startOfWeek(date: Date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - d.getDay());
+  return d;
+}
 
 export default async function AppointmentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ patient_id?: string; view?: string }>;
+  searchParams: Promise<{ patient_id?: string; view?: string; layout?: string; week?: string }>;
 }) {
-  const { patient_id, view = "active" } = await searchParams;
+  const { patient_id, view = "active", layout = "calendar", week } = await searchParams;
   const supabase = await createClient();
+
+  const [{ data: patients }, { data: types }] = await Promise.all([
+    supabase.from("patients").select("id, name").is("deleted_at", null).order("name"),
+    supabase
+      .from("appointment_types")
+      .select("id, name, color, default_duration_minutes")
+      .is("deleted_at", null)
+      .order("name"),
+  ]);
+
+  if (layout === "calendar") {
+    const weekStart = startOfWeek(week ? new Date(week) : new Date());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+
+    const { data: weekAppointments } = await supabase
+      .from("appointments")
+      .select("id, start_time, end_time, status, patients(name), appointment_types(color)")
+      .is("deleted_at", null)
+      .gte("start_time", weekStart.toISOString())
+      .lt("start_time", weekEnd.toISOString())
+      .order("start_time", { ascending: true });
+
+    const calendarAppointments: CalendarAppointment[] = (weekAppointments ?? []).map((a) => ({
+      id: a.id,
+      start_time: a.start_time,
+      end_time: a.end_time,
+      status: a.status,
+      patientName: (a.patients as unknown as { name: string } | null)?.name ?? "—",
+      typeColor: (a.appointment_types as unknown as { color: string } | null)?.color ?? null,
+    }));
+
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHeader layout={layout} />
+        <AppointmentForm patients={patients ?? []} types={types ?? []} />
+        <AppointmentTypeManager types={types ?? []} />
+        <WeekCalendar weekStartIso={weekStart.toISOString()} appointments={calendarAppointments} />
+      </div>
+    );
+  }
 
   let appointmentsQuery = supabase
     .from("appointments")
@@ -23,10 +73,7 @@ export default async function AppointmentsPage({
   if (view === "cancelled") appointmentsQuery = appointmentsQuery.eq("status", "cancelled");
   else if (view !== "all") appointmentsQuery = appointmentsQuery.neq("status", "cancelled");
 
-  const [{ data: appointments }, { data: patients }] = await Promise.all([
-    appointmentsQuery,
-    supabase.from("patients").select("id, name").is("deleted_at", null).order("name"),
-  ]);
+  const { data: appointments } = await appointmentsQuery;
 
   const filteredPatientName = patient_id
     ? (patients ?? []).find((p) => p.id === patient_id)?.name
@@ -34,43 +81,37 @@ export default async function AppointmentsPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="font-mono text-xs tracking-wide text-ink-muted">
-          {appointments?.length ?? 0} موعد
+      <PageHeader layout={layout} />
+      {filteredPatientName && (
+        <p className="-mt-4 text-sm text-ink-muted">
+          مفلترة لـ {filteredPatientName} — <Link href="/appointments?layout=list" className="underline underline-offset-2">إزالة الفلتر</Link>
         </p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">المواعيد</h1>
-        {filteredPatientName && (
-          <p className="mt-1 text-sm text-ink-muted">
-            مفلترة لـ {filteredPatientName} — <Link href="/appointments" className="underline underline-offset-2">إزالة الفلتر</Link>
-          </p>
-        )}
-        <div className="mt-3 flex gap-2 text-sm">
-          {[
-            { key: "active", label: "المواعيد" },
-            { key: "cancelled", label: "الملغاة" },
-            { key: "all", label: "الكل" },
-          ].map((tab) => {
-            const params = new URLSearchParams();
-            if (patient_id) params.set("patient_id", patient_id);
-            if (tab.key !== "active") params.set("view", tab.key);
-            const qs = params.toString();
-            const active = view === tab.key;
-            return (
-              <Link
-                key={tab.key}
-                href={qs ? `/appointments?${qs}` : "/appointments"}
-                className={`rounded-lg px-3 py-1.5 transition-colors ${
-                  active ? "bg-primary text-on-primary" : "border border-border text-ink-muted hover:bg-surface-alt"
-                }`}
-              >
-                {tab.label}
-              </Link>
-            );
-          })}
-        </div>
+      )}
+      <div className="flex gap-2 text-sm">
+        {[
+          { key: "active", label: "المواعيد" },
+          { key: "cancelled", label: "الملغاة" },
+          { key: "all", label: "الكل" },
+        ].map((tab) => {
+          const params = new URLSearchParams({ layout: "list" });
+          if (patient_id) params.set("patient_id", patient_id);
+          if (tab.key !== "active") params.set("view", tab.key);
+          const active = view === tab.key;
+          return (
+            <Link
+              key={tab.key}
+              href={`/appointments?${params.toString()}`}
+              className={`rounded-lg px-3 py-1.5 transition-colors ${
+                active ? "bg-primary text-on-primary" : "border border-border text-ink-muted hover:bg-surface-alt"
+              }`}
+            >
+              {tab.label}
+            </Link>
+          );
+        })}
       </div>
 
-      <AppointmentForm patients={patients ?? []} />
+      <AppointmentForm patients={patients ?? []} types={types ?? []} />
 
       <div className="overflow-hidden rounded-xl border border-border bg-surface">
         <table className="w-full text-right text-sm">
@@ -132,6 +173,38 @@ export default async function AppointmentsPage({
             )}
           </tbody>
         </table>
+      </div>
+    </div>
+  );
+}
+
+function PageHeader({ layout }: { layout: string }) {
+  return (
+    <div>
+      <h1 className="font-display text-2xl font-bold text-ink">المواعيد</h1>
+      <div className="mt-3 flex gap-2 text-sm">
+        <Link
+          href="/appointments?layout=calendar"
+          className={`rounded-lg px-3 py-1.5 transition-colors ${
+            layout === "calendar" ? "bg-primary text-on-primary" : "border border-border text-ink-muted hover:bg-surface-alt"
+          }`}
+        >
+          الأسبوع
+        </Link>
+        <Link
+          href="/appointments?layout=list"
+          className={`rounded-lg px-3 py-1.5 transition-colors ${
+            layout === "list" ? "bg-primary text-on-primary" : "border border-border text-ink-muted hover:bg-surface-alt"
+          }`}
+        >
+          القائمة
+        </Link>
+        <Link
+          href="/appointments/waitlist"
+          className="rounded-lg border border-border px-3 py-1.5 text-ink-muted transition-colors hover:bg-surface-alt"
+        >
+          قائمة الانتظار
+        </Link>
       </div>
     </div>
   );

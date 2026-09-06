@@ -21,6 +21,9 @@ export default function SupplierForm() {
         <input name="name" type="text" placeholder="اسم المورد" required className={inputClass} />
         <input name="contact_person" type="text" placeholder="الشخص المسؤول" className={inputClass} />
         <input name="phone" type="tel" placeholder="الهاتف" className={inputClass} />
+        <input name="email" type="email" placeholder="الإيميل" className={inputClass} />
+        <input name="address" type="text" placeholder="العنوان" className={inputClass} />
+        <input name="payment_terms" type="text" placeholder="شروط الدفع" className={inputClass} />
       </div>
       {state?.error && <p className="text-sm text-danger">{state.error}</p>}
       <button

@@ -13,6 +13,8 @@ type Patient = {
   dob: string | null;
   national_id: string | null;
   notes: string | null;
+  allergies: string | null;
+  medical_history: string | null;
 };
 
 export default function PatientEditForm({ patient }: { patient: Patient }) {
@@ -58,6 +60,18 @@ export default function PatientEditForm({ patient }: { patient: Patient }) {
           className={inputClass}
         />
         <input name="notes" defaultValue={patient.notes ?? ""} placeholder="ملاحظات" className={inputClass} />
+        <input
+          name="allergies"
+          defaultValue={patient.allergies ?? ""}
+          placeholder="الحساسية (إن وجدت)"
+          className={inputClass}
+        />
+        <input
+          name="medical_history"
+          defaultValue={patient.medical_history ?? ""}
+          placeholder="التاريخ المرضي"
+          className={inputClass}
+        />
       </div>
 
       {error && <p className="text-sm text-danger">{error}</p>}

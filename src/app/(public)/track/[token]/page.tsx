@@ -28,7 +28,7 @@ export default async function TrackPage({
 
   return (
     <div className="flex flex-col gap-3 text-center">
-      <h1 className="text-xl font-bold text-ink">حالة موعدك</h1>
+      <h1 className="font-display text-xl font-bold text-ink">حالة موعدك</h1>
       <p className="text-sm text-ink-muted">
         {result.patient_name} — {result.doctor_name}
       </p>

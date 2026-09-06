@@ -1,12 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import StaffStatusToggle from "./StaffStatusToggle";
 import { staffStatusLabels } from "../statusLabels";
-
-const roleLabels: Record<string, string> = {
-  doctor: "طبيب",
-  assistant: "مساعد",
-  reception: "استقبال",
-};
+import { roleLabels } from "@/lib/roleLabels";
+import CommissionRateInput from "../CommissionRateInput";
+import FixedSalaryInput from "../FixedSalaryInput";
 
 const days = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
 
@@ -16,7 +13,7 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
 
   const { data: member } = await supabase
     .from("users")
-    .select("id, full_name, role, email, status, commission_rate")
+    .select("id, full_name, role, email, status, commission_rate, fixed_salary")
     .eq("id", id)
     .single();
 
@@ -39,8 +36,8 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
       .order("performed_at", { ascending: false })
       .limit(10),
     supabase
-      .from("v_staff_commissions")
-      .select("total_billed, commission_amount")
+      .from("v_staff_payroll")
+      .select("total_billed, commission_amount, total_pay")
       .eq("user_id", id)
       .maybeSingle(),
   ]);
@@ -50,7 +47,7 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-xs tracking-wide text-ink-muted">ملف الموظف</p>
-          <h1 className="mt-1 text-2xl font-bold text-ink">{member.full_name}</h1>
+          <h1 className="mt-1 font-display text-2xl font-bold text-ink">{member.full_name}</h1>
           <p className="mt-1 text-sm text-ink-muted">
             {roleLabels[member.role] ?? member.role} — {member.email} — {staffStatusLabels[member.status] ?? member.status}
           </p>
@@ -58,19 +55,30 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
         <StaffStatusToggle id={member.id} status={member.status} />
       </div>
 
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border border-border bg-surface p-4">
+          <p className="mb-2 text-xs text-ink-muted">الراتب الثابت</p>
+          <FixedSalaryInput userId={member.id} initialSalary={member.fixed_salary} />
+        </div>
+        <div className="rounded-xl border border-border bg-surface p-4">
+          <p className="mb-2 text-xs text-ink-muted">نسبة العمولة</p>
+          <CommissionRateInput userId={member.id} initialRate={member.commission_rate} />
+        </div>
+      </div>
+
       {commission && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-border bg-surface p-4">
-            <p className="text-xs text-ink-muted">نسبة العمولة</p>
-            <p className="mt-1 font-mono text-lg text-ink">{member.commission_rate ?? 0}%</p>
-          </div>
           <div className="rounded-xl border border-border bg-surface p-4">
             <p className="text-xs text-ink-muted">إجمالي الفواتير</p>
             <p className="mt-1 font-mono text-lg text-ink">{commission.total_billed}</p>
           </div>
           <div className="rounded-xl border border-border bg-surface p-4">
             <p className="text-xs text-ink-muted">العمولة المستحقة</p>
-            <p className="mt-1 font-mono text-lg text-primary-strong">{commission.commission_amount}</p>
+            <p className="mt-1 font-mono text-lg text-ink">{commission.commission_amount}</p>
+          </div>
+          <div className="rounded-xl border border-border bg-surface p-4">
+            <p className="text-xs text-ink-muted">إجمالي المستحق</p>
+            <p className="mt-1 font-mono text-lg text-primary-strong">{commission.total_pay}</p>
           </div>
         </div>
       )}

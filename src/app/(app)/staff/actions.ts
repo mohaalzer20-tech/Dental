@@ -15,7 +15,7 @@ export async function inviteStaff(
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const role = String(formData.get("role") ?? "");
 
-  if (!fullName || !email || !["assistant", "reception"].includes(role)) {
+  if (!fullName || !email || !["assistant", "reception", "accountant"].includes(role)) {
     return { error: "الرجاء تعبئة الاسم والإيميل واختيار الدور" };
   }
 
@@ -95,6 +95,49 @@ export async function updateCommissionRate(_prevState: { error: string } | null,
 
   revalidatePath("/staff");
   return null;
+}
+
+export async function updateFixedSalary(_prevState: { error: string } | null, formData: FormData) {
+  const userId = String(formData.get("user_id") ?? "");
+  const raw = String(formData.get("fixed_salary") ?? "").trim();
+  const salary = raw ? Number(raw) : null;
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("users").update({ fixed_salary: salary }).eq("id", userId);
+
+  if (error) {
+    return { error: "تعذر التحديث: " + error.message };
+  }
+
+  revalidatePath("/staff");
+  return null;
+}
+
+export async function clockIn(userId: string) {
+  const supabase = await createClient();
+  const today = new Date().toISOString().slice(0, 10);
+  const { data: existing } = await supabase
+    .from("staff_attendance")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("work_date", today)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (existing) return;
+  await supabase.from("staff_attendance").insert({ user_id: userId, work_date: today, check_in: new Date().toISOString() });
+  revalidatePath("/staff/attendance");
+}
+
+export async function clockOut(userId: string) {
+  const supabase = await createClient();
+  const today = new Date().toISOString().slice(0, 10);
+  await supabase
+    .from("staff_attendance")
+    .update({ check_out: new Date().toISOString() })
+    .eq("user_id", userId)
+    .eq("work_date", today)
+    .is("check_out", null);
+  revalidatePath("/staff/attendance");
 }
 
 export async function updateStaffStatus(userId: string, status: string) {

@@ -28,7 +28,15 @@ const conditions = [
 
 type Patient = { id: string; name: string };
 
-export default function ChartForm({ patients }: { patients: Patient[] }) {
+export default function ChartForm({
+  patients,
+  lockedPatientId,
+  selectedTooth,
+}: {
+  patients: Patient[];
+  lockedPatientId?: string;
+  selectedTooth?: number;
+}) {
   const [state, formAction, pending] = useActionState(addChartEntry, null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -37,20 +45,38 @@ export default function ChartForm({ patients }: { patients: Patient[] }) {
   }, [state]);
 
   return (
-    <form ref={formRef} action={formAction} className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-5">
+    <form
+      key={selectedTooth}
+      ref={formRef}
+      action={formAction}
+      className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-5"
+    >
       <h2 className="text-sm font-semibold text-ink">تسجيل حالة سن</h2>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-        <select name="patient_id" required defaultValue="" className={inputClass}>
-          <option value="" disabled>
-            المريض
-          </option>
-          {patients.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
+        {lockedPatientId ? (
+          <>
+            <input type="hidden" name="patient_id" value={lockedPatientId} />
+            <select disabled defaultValue={lockedPatientId} className={inputClass}>
+              {patients.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </>
+        ) : (
+          <select name="patient_id" required defaultValue="" className={inputClass}>
+            <option value="" disabled>
+              المريض
             </option>
-          ))}
-        </select>
-        <select name="tooth_number" required defaultValue="" className={inputClass}>
+            {patients.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        )}
+        <select name="tooth_number" required defaultValue={selectedTooth ?? ""} className={inputClass}>
           <option value="" disabled>
             رقم السن (FDI)
           </option>

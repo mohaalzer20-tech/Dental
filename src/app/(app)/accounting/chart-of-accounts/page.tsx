@@ -21,7 +21,7 @@ export default async function ChartOfAccountsPage() {
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">{accounts?.length ?? 0} حساب</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">شجرة الحسابات</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">شجرة الحسابات</h1>
       </div>
 
       <AccountForm />

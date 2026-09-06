@@ -4,6 +4,7 @@ import DeleteButton from "@/components/DeleteButton";
 import ItemForm from "./ItemForm";
 import PaymentForm from "./PaymentForm";
 import DiscountForm from "./DiscountForm";
+import InstallmentsPanel from "./InstallmentsPanel";
 import { deletePayment } from "../actions";
 
 export default async function InvoiceDetailPage({
@@ -14,7 +15,7 @@ export default async function InvoiceDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: invoice }, { data: items }, { data: payments }] = await Promise.all([
+  const [{ data: invoice }, { data: items }, { data: payments }, { data: installments }] = await Promise.all([
     supabase
       .from("invoices")
       .select(
@@ -28,6 +29,12 @@ export default async function InvoiceDetailPage({
       .select("id, description, quantity, unit_price, amount, treatment_id")
       .eq("invoice_id", id),
     supabase.from("payments").select("id, amount, method, paid_at, notes").eq("invoice_id", id).order("paid_at", { ascending: false }),
+    supabase
+      .from("invoice_installments")
+      .select("id, due_date, amount, paid")
+      .eq("invoice_id", id)
+      .is("deleted_at", null)
+      .order("due_date", { ascending: true }),
   ]);
 
   if (!invoice) {
@@ -68,7 +75,7 @@ export default async function InvoiceDetailPage({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-mono text-xs tracking-wide text-ink-muted">{invoice.invoice_no}</p>
-          <h1 className="mt-1 text-2xl font-bold text-ink">
+          <h1 className="mt-1 font-display text-2xl font-bold text-ink">
             فاتورة{" "}
             {patient ? (
               <Link href={`/patients/${patient.id}`} className="underline underline-offset-2">
@@ -186,6 +193,8 @@ export default async function InvoiceDetailPage({
           <PaymentForm invoiceId={id} />
         </div>
       </div>
+
+      <InstallmentsPanel invoiceId={id} installments={installments ?? []} />
     </div>
   );
 }

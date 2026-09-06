@@ -7,6 +7,7 @@ const statuses = [
   { value: "draft", label: "مسودة" },
   { value: "proposed", label: "مقترحة" },
   { value: "accepted", label: "مقبولة" },
+  { value: "declined", label: "مرفوضة من المريض" },
   { value: "in_progress", label: "قيد التنفيذ" },
   { value: "completed", label: "منتهية" },
   { value: "cancelled", label: "ملغاة" },

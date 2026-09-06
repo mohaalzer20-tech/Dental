@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import AllergyBanner from "@/components/AllergyBanner";
 import PlanItemForm from "./PlanItemForm";
 import PlanStatusSelect from "./PlanStatusSelect";
 import PlanAcceptanceForm from "./PlanAcceptanceForm";
@@ -23,7 +24,7 @@ export default async function TreatmentPlanDetailPage({
   const [{ data: plan }, { data: items }, { data: procedures }] = await Promise.all([
     supabase
       .from("treatment_plans")
-      .select("id, title, notes, status, accepted_at, accepted_by_name, patients(id, name)")
+      .select("id, title, notes, status, accepted_at, accepted_by_name, patients(id, name, allergies)")
       .eq("id", id)
       .is("deleted_at", null)
       .single(),
@@ -38,7 +39,7 @@ export default async function TreatmentPlanDetailPage({
     return <p className="text-ink-muted">الخطة غير موجودة</p>;
   }
 
-  const patient = plan.patients as unknown as { id: string; name: string } | null;
+  const patient = plan.patients as unknown as { id: string; name: string; allergies: string | null } | null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -53,7 +54,7 @@ export default async function TreatmentPlanDetailPage({
               "—"
             )}
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-ink">{plan.title}</h1>
+          <h1 className="mt-1 font-display text-2xl font-bold text-ink">{plan.title}</h1>
         </div>
         <div className="flex items-center gap-3">
           <Link
@@ -65,6 +66,8 @@ export default async function TreatmentPlanDetailPage({
           <PlanStatusSelect id={plan.id} status={plan.status} />
         </div>
       </div>
+
+      <AllergyBanner allergies={patient?.allergies} />
 
       <PlanAcceptanceForm planId={plan.id} acceptedAt={plan.accepted_at} acceptedByName={plan.accepted_by_name} />
 
@@ -85,7 +88,7 @@ export default async function TreatmentPlanDetailPage({
                 <td className="py-2 text-ink">
                   {(it.procedures as unknown as { name: string } | null)?.name ?? "—"}
                 </td>
-                <td className="py-2 font-mono text-ink-muted">{it.tooth_numbers ?? "—"}</td>
+                <td className="py-2 font-mono text-ink-muted">{it.tooth_numbers?.join("، ") || "—"}</td>
                 <td className="py-2 font-mono text-ink-muted">{it.estimated_cost}</td>
                 <td className="py-2 text-ink-muted">{statusLabels[it.status] ?? it.status}</td>
               </tr>

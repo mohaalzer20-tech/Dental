@@ -9,7 +9,7 @@ export default function RegisterPage() {
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <h1 className="text-xl font-bold text-ink">إنشاء حساب عيادة جديد</h1>
+      <h1 className="font-display text-xl font-bold text-ink">إنشاء حساب عيادة جديد</h1>
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="doctor_name" className="text-sm text-ink-muted">

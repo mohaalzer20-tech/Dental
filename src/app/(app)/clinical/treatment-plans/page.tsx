@@ -39,7 +39,7 @@ export default async function TreatmentPlansPage({
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">{plans?.length ?? 0} خطة</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">خطط العلاج</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">خطط العلاج</h1>
         {filteredPatientName && (
           <p className="mt-1 text-sm text-ink-muted">
             مفلترة لـ {filteredPatientName} —{" "}

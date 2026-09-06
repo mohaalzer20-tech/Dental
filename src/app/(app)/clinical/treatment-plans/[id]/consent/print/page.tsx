@@ -29,7 +29,7 @@ export default async function TreatmentPlanConsentPrintPage({ params }: { params
       <ClinicLetterhead practice={practice} licenseNumber={practice?.license_number} />
 
       <div className="flex items-start justify-between">
-        <h1 className="text-lg font-bold text-ink">نموذج موافقة على إجراء علاجي</h1>
+        <h1 className="font-display text-lg font-bold text-ink">نموذج موافقة على إجراء علاجي</h1>
         <PrintButton />
       </div>
 
@@ -52,7 +52,7 @@ export default async function TreatmentPlanConsentPrintPage({ params }: { params
             {items.map((it, i) => (
               <tr key={i} className="border-b border-border">
                 <td className="py-2 text-ink">{(it.procedures as unknown as { name: string } | null)?.name ?? "—"}</td>
-                <td className="py-2 font-mono text-ink-muted">{it.tooth_numbers ?? "—"}</td>
+                <td className="py-2 font-mono text-ink-muted">{it.tooth_numbers?.join("، ") || "—"}</td>
               </tr>
             ))}
           </tbody>

@@ -40,11 +40,15 @@ export async function addPlanItem(_prevState: { error: string } | null, formData
     return { error: "التكلفة المقدّرة لا يمكن أن تكون سالبة" };
   }
 
+  const toothNumbersArray = toothNumbers
+    ? toothNumbers.split(",").map((t) => t.trim()).filter(Boolean)
+    : null;
+
   const supabase = await createClient();
   const { error } = await supabase.from("treatment_plan_items").insert({
     treatment_plan_id: planId,
     procedure_id: procedureId,
-    tooth_numbers: toothNumbers || null,
+    tooth_numbers: toothNumbersArray,
     estimated_cost: estimatedCost || 0,
   });
 

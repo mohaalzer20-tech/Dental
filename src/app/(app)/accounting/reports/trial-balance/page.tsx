@@ -35,7 +35,7 @@ export default async function TrialBalancePage() {
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">التقارير المالية</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">ميزان المراجعة</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">ميزان المراجعة</h1>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-border bg-surface">

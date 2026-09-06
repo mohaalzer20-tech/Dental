@@ -23,7 +23,7 @@ export default async function SettingsPage() {
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">الإعدادات</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">إعدادات العيادة</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">إعدادات العيادة</h1>
       </div>
 
       <div className="rounded-xl border border-border bg-surface p-5">

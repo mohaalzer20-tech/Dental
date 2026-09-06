@@ -41,7 +41,7 @@ export default async function InvoicePrintPage({ params }: { params: Promise<{ i
 
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-lg font-bold text-ink">فاتورة {invoice.invoice_no}</h1>
+          <h1 className="font-display text-lg font-bold text-ink">فاتورة {invoice.invoice_no}</h1>
           <p className="text-sm text-ink-muted">
             التاريخ: {new Date(invoice.created_at).toLocaleDateString("ar-SY-u-nu-latn")}
           </p>

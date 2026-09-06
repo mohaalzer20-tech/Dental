@@ -1,23 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  /* paper: cool, clinical off-white — not the cream/terracotta default */
-  --bg: #f2f5f4;
-  --surface: #ffffff;
-  --surface-alt: #e9f0ee;
-  --ink: #12211d;
-  --ink-muted: #5c6d68;
-  --border: #dbe4e1;
-  /* deep clinical teal — structure, nav, primary actions */
-  --primary: #17594a;
-  --primary-strong: #0e4238;
-  --on-primary: #f4faf8;
-  /* muted amber — the one accent, spent sparingly (focus, highlights, active tab) */
-  --accent: #b8862f;
+  /* dark navy — replaces the old clinical off-white */
+  --bg: #0a0d14;
+  --surface: #131722;
+  --surface-alt: #1a1f2c;
+  --ink: #f4f6fb;
+  --ink-muted: #8b93a7;
+  --border: #232838;
+  /* bright cyan — structure, nav, primary actions */
+  --primary: #22d3ee;
+  --primary-strong: #0891b2;
+  --on-primary: #06131a;
+  /* amber — the one warm accent, spent sparingly (focus, highlights, active tab) */
+  --accent: #f0b429;
   --on-accent: #221602;
   /* muted brick — cancelled/no-show only, never decorative */
-  --danger: #a5432c;
-  --danger-bg: #f7e9e4;
+  --danger: #e05a3c;
+  --danger-bg: #2a1712;
+  /* category accents — stat cards, avatars, chart series */
+  --cat-cyan: #22d3ee;
+  --cat-violet: #8b5cf6;
+  --cat-pink: #ec4899;
+  --cat-green: #10b981;
+  /* WhatsApp brand green — used only for WhatsApp send actions */
+  --whatsapp: #25d366;
 }
 
 @theme inline {
@@ -34,8 +41,14 @@
   --color-on-accent: var(--on-accent);
   --color-danger: var(--danger);
   --color-danger-bg: var(--danger-bg);
+  --color-cat-cyan: var(--cat-cyan);
+  --color-cat-violet: var(--cat-violet);
+  --color-cat-pink: var(--cat-pink);
+  --color-cat-green: var(--cat-green);
+  --color-whatsapp: var(--whatsapp);
   --font-sans: var(--font-plex-arabic);
   --font-mono: var(--font-plex-mono);
+  --font-display: var(--font-el-messiri);
 }
 
 body {

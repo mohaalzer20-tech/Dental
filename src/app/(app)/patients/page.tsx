@@ -20,7 +20,7 @@ export default async function PatientsPage() {
         <p className="font-mono text-xs tracking-wide text-ink-muted">
           {patients?.length ?? 0} سجل
         </p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">المرضى</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">المرضى</h1>
       </div>
 
       <PatientForm />

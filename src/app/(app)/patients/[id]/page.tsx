@@ -7,6 +7,9 @@ import ReminderToggle from "./ReminderToggle";
 import { conditionLabels } from "../../clinical/conditionLabels";
 import { appointmentStatusLabels, appointmentStatusBadgeClass } from "../../appointments/statusStyles";
 import PatientWhatsappButton from "./PatientWhatsappButton";
+import AllergyBanner from "@/components/AllergyBanner";
+import ImagingPanel, { type PatientImage } from "./ImagingPanel";
+import IntakeLinkButton from "./IntakeLinkButton";
 
 const invoiceStatusLabels: Record<string, string> = {
   unpaid: "غير مدفوعة",
@@ -38,6 +41,7 @@ const tabs = [
   { key: "invoices", label: "الفواتير" },
   { key: "prescriptions", label: "الوصفات" },
   { key: "lab", label: "المختبر" },
+  { key: "imaging", label: "التصوير" },
 ] as const;
 
 export default async function PatientProfilePage({
@@ -54,7 +58,7 @@ export default async function PatientProfilePage({
   const { data: patient } = await supabase
     .from("patients")
     .select(
-      "id, name, phone, dob, national_id, notes, payment_reminders_enabled, appointment_reminders_enabled, created_at",
+      "id, name, phone, dob, national_id, notes, allergies, medical_history, payment_reminders_enabled, appointment_reminders_enabled, created_at",
     )
     .eq("id", id)
     .is("deleted_at", null)
@@ -138,17 +142,45 @@ export default async function PatientProfilePage({
     supabase.from("communication_templates").select("id, name, body").is("deleted_at", null).order("name"),
   ]);
 
+  let patientImages: PatientImage[] = [];
+  if (tab === "imaging") {
+    const { data: images } = await supabase
+      .from("patient_images")
+      .select("id, category, before_after, tooth_number, taken_at, storage_path")
+      .eq("patient_id", id)
+      .is("deleted_at", null)
+      .order("taken_at", { ascending: false });
+
+    if (images?.length) {
+      const { data: signed } = await supabase.storage
+        .from("patient-media")
+        .createSignedUrls(images.map((i) => i.storage_path), 3600);
+      const urlByPath = new Map((signed ?? []).map((s) => [s.path, s.signedUrl]));
+      patientImages = images.map((i) => ({
+        id: i.id,
+        category: i.category,
+        before_after: i.before_after,
+        tooth_number: i.tooth_number,
+        taken_at: i.taken_at,
+        url: urlByPath.get(i.storage_path) ?? null,
+      }));
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-xs tracking-wide text-ink-muted">ملف المريض</p>
-          <h1 className="mt-1 text-2xl font-bold text-ink">{patient.name}</h1>
+          <h1 className="mt-1 font-display text-2xl font-bold text-ink">{patient.name}</h1>
           <p className="mt-1 text-sm text-ink-muted">
             {patient.phone ?? "بدون رقم هاتف"} {patient.dob ? `— تاريخ الميلاد: ${patient.dob}` : ""}
             {patient.national_id ? ` — رقم الهوية: ${patient.national_id}` : ""}
           </p>
           {patient.notes && <p className="mt-1 text-sm text-ink-muted">ملاحظات: {patient.notes}</p>}
+          {patient.medical_history && (
+            <p className="mt-1 text-sm text-ink-muted">التاريخ المرضي: {patient.medical_history}</p>
+          )}
         </div>
         <div className="flex flex-wrap gap-2">
           <PatientWhatsappButton patientName={patient.name} phone={patient.phone} templates={templates ?? []} />
@@ -171,6 +203,8 @@ export default async function PatientProfilePage({
         </div>
       </div>
 
+      <AllergyBanner allergies={patient.allergies} />
+
       <div className="flex flex-wrap gap-2 border-b border-border pb-3 text-sm">
         {tabs.map((t) => {
           const active = tab === t.key;
@@ -188,7 +222,12 @@ export default async function PatientProfilePage({
         })}
       </div>
 
-      {tab === "info" && <PatientEditForm patient={patient} />}
+      {tab === "info" && (
+        <>
+          <PatientEditForm patient={patient} />
+          <IntakeLinkButton patientId={patient.id} phone={patient.phone} />
+        </>
+      )}
 
       {tab === "appointments" && (
         <>
@@ -343,6 +382,8 @@ export default async function PatientProfilePage({
           )}
         </Section>
       )}
+
+      {tab === "imaging" && <ImagingPanel patientId={id} images={patientImages} />}
     </div>
   );
 }

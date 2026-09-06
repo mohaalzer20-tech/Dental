@@ -16,7 +16,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         <div className="relative rounded-2xl border border-border bg-surface p-8 shadow-[0_1px_2px_rgba(18,33,29,0.04),0_8px_24px_rgba(18,33,29,0.06)]">
           <div className="mb-6 flex items-baseline gap-2">
-            <span className="text-lg font-bold text-primary-strong">عيادتي</span>
+            <span className="font-display text-lg font-bold text-primary-strong">عيادتي</span>
             <span className="font-mono text-[11px] tracking-wide text-ink-muted">
               نظام إدارة العيادات
             </span>

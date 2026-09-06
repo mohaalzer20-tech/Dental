@@ -14,7 +14,7 @@ export default async function ProceduresPage() {
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">{procedures?.length ?? 0} إجراء</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">كتالوج الإجراءات</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">كتالوج الإجراءات</h1>
       </div>
 
       <ProcedureForm />

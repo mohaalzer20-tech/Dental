@@ -1,36 +1,57 @@
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "./actions";
-import NavLinks from "./NavLinks";
+import NavLinks, { ToothIcon } from "./NavLinks";
 import GlobalSearch from "./GlobalSearch";
+import Avatar from "@/components/Avatar";
+import { roleLabels } from "@/lib/roleLabels";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
-  const { data: practice } = await supabase
-    .from("practices")
-    .select("doctor_name")
-    .single();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const [{ data: practice }, { data: me }] = await Promise.all([
+    supabase.from("practices").select("doctor_name").single(),
+    user
+      ? supabase.from("users").select("full_name, role").eq("id", user.id).single()
+      : Promise.resolve({ data: null as { full_name: string; role: string } | null }),
+  ]);
+
+  const displayName = me?.full_name ?? practice?.doctor_name ?? "";
+  const roleLabel = me?.role ? (roleLabels[me.role] ?? me.role) : "";
 
   return (
     <div className="flex min-h-screen bg-bg">
       <aside className="flex w-60 shrink-0 flex-col border-l border-border bg-surface print:hidden">
-        <div className="border-b border-border px-5 py-5">
-          <p className="text-sm font-bold text-primary-strong">عيادتي</p>
-          <p className="mt-1 truncate text-xs text-ink-muted">
-            {practice?.doctor_name ?? ""}
-          </p>
+        <div className="flex items-center gap-2.5 border-b border-border px-5 py-5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cat-cyan to-cat-violet text-on-primary">
+            <ToothIcon className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold text-primary-strong">عيادتي</p>
+            <p className="truncate text-[10px] text-ink-muted">نظام إدارة العيادات</p>
+          </div>
         </div>
 
         <NavLinks />
 
-        <form action={logout} className="border-t border-border p-3">
-          <button
-            type="submit"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-surface-alt hover:text-danger"
-          >
-            <LogoutIcon className="h-4 w-4 shrink-0" />
-            تسجيل خروج
-          </button>
-        </form>
+        <div className="flex items-center gap-2.5 border-t border-border p-3">
+          <Avatar name={displayName || "؟"} size="sm" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-ink">{displayName}</p>
+            <p className="truncate text-[11px] text-ink-muted">{roleLabel}</p>
+          </div>
+          <form action={logout}>
+            <button
+              type="submit"
+              title="تسجيل خروج"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-surface-alt hover:text-danger"
+            >
+              <LogoutIcon className="h-4 w-4 shrink-0" />
+            </button>
+          </form>
+        </div>
       </aside>
 
       <div className="flex flex-1 flex-col">

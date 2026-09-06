@@ -31,8 +31,7 @@ export default function PatientsTable({ patients, templates }: { patients: Patie
           <button
             type="button"
             onClick={() => setBulkOpen(true)}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-            style={{ background: "#25D366" }}
+            className="rounded-lg bg-whatsapp px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             إرسال للمحددين عبر واتساب
           </button>

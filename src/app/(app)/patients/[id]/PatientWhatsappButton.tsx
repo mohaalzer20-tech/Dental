@@ -20,8 +20,7 @@ export default function PatientWhatsappButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="self-start rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors"
-        style={{ borderColor: "#25D366", color: "#25D366" }}
+        className="self-start rounded-lg border border-whatsapp px-3 py-1.5 text-sm font-medium text-whatsapp transition-colors"
       >
         واتساب
       </button>

@@ -10,6 +10,8 @@ export async function addPatient(_prevState: { error: string } | null, formData:
   const dob = String(formData.get("dob") ?? "").trim();
   const nationalId = String(formData.get("national_id") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
+  const allergies = String(formData.get("allergies") ?? "").trim();
+  const medicalHistory = String(formData.get("medical_history") ?? "").trim();
 
   if (!name) {
     return { error: "اسم المريض مطلوب" };
@@ -23,6 +25,8 @@ export async function addPatient(_prevState: { error: string } | null, formData:
     dob: dob || null,
     national_id: nationalId || null,
     notes: notes || null,
+    allergies: allergies || null,
+    medical_history: medicalHistory || null,
   });
 
   if (error) {
@@ -40,6 +44,8 @@ export async function updatePatient(_prevState: { error: string } | null, formDa
   const dob = String(formData.get("dob") ?? "").trim();
   const nationalId = String(formData.get("national_id") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
+  const allergies = String(formData.get("allergies") ?? "").trim();
+  const medicalHistory = String(formData.get("medical_history") ?? "").trim();
 
   if (!name) {
     return { error: "اسم المريض مطلوب" };
@@ -48,7 +54,15 @@ export async function updatePatient(_prevState: { error: string } | null, formDa
   const supabase = await createClient();
   const { error } = await supabase
     .from("patients")
-    .update({ name, phone: phone || null, dob: dob || null, national_id: nationalId || null, notes: notes || null })
+    .update({
+      name,
+      phone: phone || null,
+      dob: dob || null,
+      national_id: nationalId || null,
+      notes: notes || null,
+      allergies: allergies || null,
+      medical_history: medicalHistory || null,
+    })
     .eq("id", id);
 
   if (error) {
@@ -70,6 +84,21 @@ export async function deletePatient(id: string) {
 
   revalidatePath("/patients");
   redirect("/patients");
+}
+
+export async function createIntakeLink(patientId: string): Promise<{ token?: string; error?: string }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("patient_intake_tokens")
+    .insert({ patient_id: patientId })
+    .select("token")
+    .single();
+
+  if (error) {
+    return { error: "تعذر إنشاء الرابط: " + error.message };
+  }
+
+  return { token: data.token };
 }
 
 export async function togglePaymentReminders(id: string, enabled: boolean) {

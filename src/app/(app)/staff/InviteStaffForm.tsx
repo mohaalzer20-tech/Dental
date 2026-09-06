@@ -31,6 +31,7 @@ export default function InviteStaffForm() {
           </option>
           <option value="assistant">مساعد / ممرضة</option>
           <option value="reception">استقبال / سكرتير</option>
+          <option value="accountant">محاسب</option>
         </select>
         <input
           type="tel"

@@ -6,7 +6,15 @@ import { updateSupplier } from "../actions";
 const inputClass =
   "rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-primary";
 
-type Supplier = { id: string; name: string; phone: string | null; contact_person: string | null };
+type Supplier = {
+  id: string;
+  name: string;
+  phone: string | null;
+  contact_person: string | null;
+  email: string | null;
+  address: string | null;
+  payment_terms: string | null;
+};
 
 export default function SupplierEditForm({ supplier }: { supplier: Supplier }) {
   const [editing, setEditing] = useState(false);
@@ -47,6 +55,14 @@ export default function SupplierEditForm({ supplier }: { supplier: Supplier }) {
           name="contact_person"
           defaultValue={supplier.contact_person ?? ""}
           placeholder="المسؤول"
+          className={inputClass}
+        />
+        <input name="email" type="email" defaultValue={supplier.email ?? ""} placeholder="الإيميل" className={inputClass} />
+        <input name="address" defaultValue={supplier.address ?? ""} placeholder="العنوان" className={inputClass} />
+        <input
+          name="payment_terms"
+          defaultValue={supplier.payment_terms ?? ""}
+          placeholder="شروط الدفع"
           className={inputClass}
         />
       </div>

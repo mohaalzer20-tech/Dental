@@ -26,8 +26,10 @@ export async function addLabOrder(_prevState: { error: string } | null, formData
   const patientId = String(formData.get("patient_id") ?? "").trim();
   const labVendorId = String(formData.get("lab_vendor_id") ?? "") || null;
   const treatmentId = String(formData.get("treatment_id") ?? "") || null;
+  const treatmentPlanId = String(formData.get("treatment_plan_id") ?? "") || null;
   const description = String(formData.get("description") ?? "").trim();
   const cost = Number(formData.get("cost") ?? 0);
+  const expectedDate = String(formData.get("expected_date") ?? "") || null;
 
   if (!patientId) {
     return { error: "الرجاء اختيار المريض" };
@@ -38,8 +40,10 @@ export async function addLabOrder(_prevState: { error: string } | null, formData
     patient_id: patientId,
     lab_vendor_id: labVendorId,
     treatment_id: treatmentId,
+    treatment_plan_id: treatmentPlanId,
     description: description || null,
     cost: cost || 0,
+    expected_date: expectedDate,
   });
 
   if (error) {

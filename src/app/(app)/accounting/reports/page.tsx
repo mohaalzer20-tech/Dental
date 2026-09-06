@@ -4,6 +4,7 @@ const reports = [
   { href: "/accounting/reports/trial-balance", title: "ميزان المراجعة", desc: "مجموع المدين والدائن لكل حساب" },
   { href: "/accounting/reports/income-statement", title: "قائمة الدخل", desc: "الإيرادات والمصروفات وصافي الدخل" },
   { href: "/accounting/reports/balance-sheet", title: "الميزانية العمومية", desc: "الأصول مقابل الخصوم وحقوق الملكية" },
+  { href: "/accounting/reports/analytics", title: "التحليلات التشغيلية", desc: "الإيرادات، اتجاه المرضى، ونسب المواعيد" },
 ];
 
 export default function ReportsHubPage() {
@@ -11,7 +12,7 @@ export default function ReportsHubPage() {
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">المحاسبة</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">التقارير المالية</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">التقارير المالية</h1>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

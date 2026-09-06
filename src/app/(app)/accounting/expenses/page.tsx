@@ -29,7 +29,7 @@ export default async function ExpensesPage() {
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">{expenses?.length ?? 0} مصروف</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink">المصروفات</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-ink">المصروفات</h1>
       </div>
 
       <ExpenseForm expenseAccounts={expenseAccounts} cashAccounts={cashAccounts} />

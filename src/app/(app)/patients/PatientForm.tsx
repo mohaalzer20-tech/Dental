@@ -30,6 +30,8 @@ export default function PatientForm() {
         <input name="dob" type="date" placeholder="تاريخ الميلاد" className={inputClass} />
         <input name="national_id" type="text" placeholder="رقم الهوية" className={inputClass} />
         <input name="notes" type="text" placeholder="ملاحظات" className={inputClass} />
+        <input name="allergies" type="text" placeholder="الحساسية (إن وجدت)" className={inputClass} />
+        <input name="medical_history" type="text" placeholder="التاريخ المرضي" className={inputClass} />
       </div>
 
       {state?.error && <p className="text-sm text-danger">{state.error}</p>}

@@ -61,8 +61,7 @@ export function MessagePanel({
           target="_blank"
           rel="noopener noreferrer"
           onClick={onClose}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-          style={{ background: "#25D366" }}
+          className="rounded-lg bg-whatsapp px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
           فتح واتساب
         </a>
@@ -164,8 +163,7 @@ export function BulkSendModal({
               href={buildWhatsappLink(item.phone, text)}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg px-4 py-2 text-center text-sm font-medium text-white transition-opacity hover:opacity-90"
-              style={{ background: "#25D366" }}
+              className="rounded-lg bg-whatsapp px-4 py-2 text-center text-sm font-medium text-white transition-opacity hover:opacity-90"
             >
               فتح واتساب
             </a>

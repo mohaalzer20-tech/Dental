@@ -14,7 +14,7 @@ export default async function BookPage({
 
   return (
     <div className="flex flex-col gap-2">
-      <h1 className="text-xl font-bold text-ink">
+      <h1 className="font-display text-xl font-bold text-ink">
         {doctorName ? `احجز موعدك مع ${doctorName}` : "احجز موعدك"}
       </h1>
       <p className="mb-2 text-sm text-ink-muted">

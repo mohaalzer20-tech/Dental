@@ -19,7 +19,7 @@ export default async function SupplierProfilePage({ params }: { params: Promise<
 
   const { data: supplier } = await supabase
     .from("suppliers")
-    .select("id, name, phone, contact_person, address, payment_terms")
+    .select("id, name, phone, contact_person, email, address, payment_terms")
     .eq("id", id)
     .is("deleted_at", null)
     .single();
@@ -40,7 +40,7 @@ export default async function SupplierProfilePage({ params }: { params: Promise<
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-xs tracking-wide text-ink-muted">ملف المورد</p>
-          <h1 className="mt-1 text-2xl font-bold text-ink">{supplier.name}</h1>
+          <h1 className="mt-1 font-display text-2xl font-bold text-ink">{supplier.name}</h1>
           <p className="mt-1 text-sm text-ink-muted">
             {supplier.contact_person ?? "بدون مسؤول"} — {supplier.phone ?? "بدون هاتف"}
           </p>

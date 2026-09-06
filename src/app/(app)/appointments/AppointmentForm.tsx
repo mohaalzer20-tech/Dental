@@ -4,11 +4,18 @@ import { useActionState, useRef, useEffect } from "react";
 import { addAppointment } from "./actions";
 
 type Patient = { id: string; name: string };
+type AppointmentType = { id: string; name: string; color: string };
 
 const inputClass =
   "rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-primary";
 
-export default function AppointmentForm({ patients }: { patients: Patient[] }) {
+export default function AppointmentForm({
+  patients,
+  types = [],
+}: {
+  patients: Patient[];
+  types?: AppointmentType[];
+}) {
   const [state, formAction, pending] = useActionState(addAppointment, null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -38,6 +45,16 @@ export default function AppointmentForm({ patients }: { patients: Patient[] }) {
           ))}
         </select>
         <input name="notes" type="text" placeholder="ملاحظات" className={inputClass} />
+        {types.length > 0 && (
+          <select name="appointment_type_id" defaultValue="" className={inputClass}>
+            <option value="">بدون نوع محدد</option>
+            {types.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        )}
         <input name="start_time" type="datetime-local" required className={inputClass} />
         <input name="end_time" type="datetime-local" required className={inputClass} />
         <label className="flex flex-col gap-1 text-xs text-ink-muted">

@@ -9,15 +9,18 @@ const inputClass =
 type Patient = { id: string; name: string };
 type Vendor = { id: string; name: string };
 type Treatment = { id: string; patient_id: string; label: string };
+type Plan = { id: string; patient_id: string; title: string };
 
 export default function LabOrderForm({
   patients,
   vendors,
   treatments,
+  plans,
 }: {
   patients: Patient[];
   vendors: Vendor[];
   treatments: Treatment[];
+  plans: Plan[];
 }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -38,6 +41,7 @@ export default function LabOrderForm({
   }
 
   const patientTreatments = treatments.filter((t) => t.patient_id === patientId);
+  const patientPlans = plans.filter((p) => p.patient_id === patientId);
 
   return (
     <form ref={formRef} action={handleSubmit} className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-5">
@@ -75,8 +79,17 @@ export default function LabOrderForm({
             </option>
           ))}
         </select>
+        <select name="treatment_plan_id" defaultValue="" disabled={!patientId} className={inputClass}>
+          <option value="">بدون خطة علاج محددة</option>
+          {patientPlans.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.title}
+            </option>
+          ))}
+        </select>
         <input name="description" type="text" placeholder="الوصف (تاج، جسر...)" className={inputClass} />
         <input name="cost" type="number" step="0.01" placeholder="التكلفة" className={inputClass} />
+        <input name="expected_date" type="date" placeholder="تاريخ الاستلام المتوقع" className={inputClass} />
       </div>
       {error && <p className="text-sm text-danger">{error}</p>}
       <button
