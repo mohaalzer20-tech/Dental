@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useEffect } from "react";
 import { addToWaitlist } from "./actions";
+import PatientSelect from "@/components/PatientSelect";
 
 const inputClass =
   "rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-primary";
@@ -20,16 +21,7 @@ export default function WaitlistForm({ patients }: { patients: Patient[] }) {
     <form ref={formRef} action={formAction} className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-5">
       <h2 className="text-sm font-semibold text-ink">إضافة لقائمة الانتظار</h2>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-        <select name="patient_id" required defaultValue="" className={inputClass}>
-          <option value="" disabled>
-            المريض
-          </option>
-          {patients.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <PatientSelect patients={patients} required className={inputClass} />
         <input name="desired_from" type="datetime-local" placeholder="من" className={inputClass} />
         <input name="desired_to" type="datetime-local" placeholder="إلى" className={inputClass} />
         <input name="notes" type="text" placeholder="ملاحظات" className={inputClass} />

@@ -10,6 +10,7 @@ export async function updateClinicInfo(_prevState: { error: string } | null, for
   const phone = String(formData.get("phone") ?? "").trim();
   const taxNumber = String(formData.get("tax_number") ?? "").trim();
   const licenseNumber = String(formData.get("license_number") ?? "").trim();
+  const googleMapsUrl = String(formData.get("google_maps_url") ?? "").trim();
   const hidePatientIdentifiers = formData.get("hide_patient_identifiers_on_documents") === "on";
 
   if (!doctorName) {
@@ -32,6 +33,7 @@ export async function updateClinicInfo(_prevState: { error: string } | null, for
       phone: phone || null,
       tax_number: taxNumber || null,
       license_number: licenseNumber || null,
+      google_maps_url: googleMapsUrl || null,
       hide_patient_identifiers_on_documents: hidePatientIdentifiers,
     })
     .eq("id", practice.id);

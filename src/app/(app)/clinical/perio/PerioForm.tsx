@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useEffect } from "react";
 import { addPerioEntry } from "./actions";
+import PatientSelect from "@/components/PatientSelect";
 
 const inputClass =
   "rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-primary";
@@ -27,16 +28,7 @@ export default function PerioForm({ patients }: { patients: Patient[] }) {
     <form ref={formRef} action={formAction} className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-5">
       <h2 className="text-sm font-semibold text-ink">تسجيل قياس لثوي</h2>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-5">
-        <select name="patient_id" required defaultValue="" className={inputClass}>
-          <option value="" disabled>
-            المريض
-          </option>
-          {patients.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <PatientSelect patients={patients} required className={inputClass} />
         <select name="tooth_number" required defaultValue="" className={inputClass}>
           <option value="" disabled>
             رقم السن (FDI)

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { addInvoice } from "./actions";
+import PatientSelect from "@/components/PatientSelect";
 
 const inputClass =
   "rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-primary";
@@ -12,9 +13,11 @@ type Provider = { id: string; full_name: string };
 export default function InvoiceForm({
   patients,
   providers,
+  defaultPatientId,
 }: {
   patients: Patient[];
   providers: Provider[];
+  defaultPatientId?: string;
 }) {
   const [state, formAction, pending] = useActionState(addInvoice, null);
 
@@ -23,16 +26,13 @@ export default function InvoiceForm({
       <h2 className="text-sm font-semibold text-ink">إنشاء فاتورة جديدة</h2>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <select name="patient_id" required defaultValue="" className={inputClass}>
-          <option value="" disabled>
-            اختر المريض
-          </option>
-          {patients.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <PatientSelect
+          patients={patients}
+          defaultPatientId={defaultPatientId}
+          required
+          className={inputClass}
+          placeholder="ابحث عن المريض بالاسم"
+        />
         <select name="provider_id" defaultValue="" className={inputClass}>
           <option value="">بدون طبيب محدد</option>
           {providers.map((p) => (

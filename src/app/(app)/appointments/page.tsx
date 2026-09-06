@@ -15,12 +15,46 @@ function startOfWeek(date: Date) {
   return d;
 }
 
+function periodRange(period: string, anchor: Date): { start: Date; end: Date } | null {
+  const start = new Date(anchor);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  if (period === "day") {
+    end.setDate(end.getDate() + 1);
+  } else if (period === "week") {
+    start.setDate(start.getDate() - start.getDay());
+    end.setTime(start.getTime());
+    end.setDate(end.getDate() + 7);
+  } else if (period === "month") {
+    start.setDate(1);
+    end.setTime(start.getTime());
+    end.setMonth(end.getMonth() + 1);
+  } else if (period === "year") {
+    start.setMonth(0, 1);
+    end.setTime(start.getTime());
+    end.setFullYear(end.getFullYear() + 1);
+  } else {
+    return null;
+  }
+  return { start, end };
+}
+
+const periodLabels: Record<string, string> = { day: "يومي", week: "أسبوعي", month: "شهري", year: "سنوي" };
+
 export default async function AppointmentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ patient_id?: string; view?: string; layout?: string; week?: string }>;
+  searchParams: Promise<{
+    patient_id?: string;
+    view?: string;
+    layout?: string;
+    week?: string;
+    period?: string;
+    date?: string;
+  }>;
 }) {
-  const { patient_id, view = "active", layout = "calendar", week } = await searchParams;
+  const { patient_id, view = "all", layout = "calendar", week, period = "", date } = await searchParams;
+  const anchorDate = date ? new Date(date) : new Date();
   const supabase = await createClient();
 
   const [{ data: patients }, { data: types }] = await Promise.all([
@@ -72,6 +106,12 @@ export default async function AppointmentsPage({
   if (patient_id) appointmentsQuery = appointmentsQuery.eq("patient_id", patient_id);
   if (view === "cancelled") appointmentsQuery = appointmentsQuery.eq("status", "cancelled");
   else if (view !== "all") appointmentsQuery = appointmentsQuery.neq("status", "cancelled");
+  const range = periodRange(period, anchorDate);
+  if (range) {
+    appointmentsQuery = appointmentsQuery
+      .gte("start_time", range.start.toISOString())
+      .lt("start_time", range.end.toISOString());
+  }
 
   const { data: appointments } = await appointmentsQuery;
 
@@ -87,15 +127,17 @@ export default async function AppointmentsPage({
           مفلترة لـ {filteredPatientName} — <Link href="/appointments?layout=list" className="underline underline-offset-2">إزالة الفلتر</Link>
         </p>
       )}
-      <div className="flex gap-2 text-sm">
+      <div className="flex flex-wrap items-center gap-2 text-sm">
         {[
+          { key: "all", label: "الكل" },
           { key: "active", label: "المواعيد" },
           { key: "cancelled", label: "الملغاة" },
-          { key: "all", label: "الكل" },
         ].map((tab) => {
           const params = new URLSearchParams({ layout: "list" });
           if (patient_id) params.set("patient_id", patient_id);
-          if (tab.key !== "active") params.set("view", tab.key);
+          if (period) params.set("period", period);
+          if (date) params.set("date", date);
+          if (tab.key !== "all") params.set("view", tab.key);
           const active = view === tab.key;
           return (
             <Link
@@ -109,6 +151,54 @@ export default async function AppointmentsPage({
             </Link>
           );
         })}
+
+        <span className="mx-1 h-5 w-px bg-border" />
+
+        {["day", "week", "month", "year"].map((p) => {
+          const params = new URLSearchParams({ layout: "list", period: p });
+          if (patient_id) params.set("patient_id", patient_id);
+          if (view !== "all") params.set("view", view);
+          if (date) params.set("date", date);
+          const active = period === p;
+          return (
+            <Link
+              key={p}
+              href={`/appointments?${params.toString()}`}
+              className={`rounded-lg px-3 py-1.5 transition-colors ${
+                active ? "bg-primary text-on-primary" : "border border-border text-ink-muted hover:bg-surface-alt"
+              }`}
+            >
+              {periodLabels[p]}
+            </Link>
+          );
+        })}
+        {period && (
+          <Link
+            href={`/appointments?layout=list${patient_id ? `&patient_id=${patient_id}` : ""}${view !== "all" ? `&view=${view}` : ""}`}
+            className="text-xs text-ink-muted underline underline-offset-2"
+          >
+            إلغاء فلترة التاريخ
+          </Link>
+        )}
+
+        <form method="get" className="flex items-center gap-2">
+          <input type="hidden" name="layout" value="list" />
+          {patient_id && <input type="hidden" name="patient_id" value={patient_id} />}
+          {view !== "all" && <input type="hidden" name="view" value={view} />}
+          <input type="hidden" name="period" value={period || "day"} />
+          <input
+            type="date"
+            name="date"
+            defaultValue={date ?? new Date().toISOString().slice(0, 10)}
+            className="rounded-lg border border-border bg-bg px-2 py-1.5 text-sm text-ink outline-none focus:border-primary"
+          />
+          <button
+            type="submit"
+            className="rounded-lg border border-border px-3 py-1.5 text-ink-muted transition-colors hover:bg-surface-alt"
+          >
+            اذهب لتاريخ
+          </button>
+        </form>
       </div>
 
       <AppointmentForm patients={patients ?? []} types={types ?? []} />

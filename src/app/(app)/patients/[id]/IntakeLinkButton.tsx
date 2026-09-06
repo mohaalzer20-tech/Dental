@@ -3,8 +3,19 @@
 import { useState, useTransition } from "react";
 import { createIntakeLink } from "../actions";
 import { buildWhatsappLink } from "@/lib/whatsappLink";
+import { withClinicSignature } from "@/lib/messageSignature";
 
-export default function IntakeLinkButton({ patientId, phone }: { patientId: string; phone: string | null }) {
+export default function IntakeLinkButton({
+  patientId,
+  phone,
+  clinicName,
+  mapsUrl,
+}: {
+  patientId: string;
+  phone: string | null;
+  clinicName: string;
+  mapsUrl?: string | null;
+}) {
   const [pending, startTransition] = useTransition();
   const [link, setLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +24,10 @@ export default function IntakeLinkButton({ patientId, phone }: { patientId: stri
   const fullLink = link ? origin + link : "";
   const waHref =
     fullLink && phone
-      ? buildWhatsappLink(phone, `الرجاء تعبئة نموذج الفحص المبدئي قبل زيارتك: ${fullLink}`)
+      ? buildWhatsappLink(
+          phone,
+          withClinicSignature(`الرجاء تعبئة نموذج الفحص المبدئي قبل زيارتك: ${fullLink}`, clinicName, mapsUrl),
+        )
       : "";
 
   function generate() {

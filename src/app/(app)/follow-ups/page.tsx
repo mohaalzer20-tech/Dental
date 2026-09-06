@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { withClinicSignature } from "@/lib/messageSignature";
 import FollowUpsClient, { type FollowUpItem } from "./FollowUpsClient";
 
 export default async function FollowUpsPage() {
@@ -10,7 +11,7 @@ export default async function FollowUpsPage() {
 
   const [{ data: practice }, { data: appointments }, { data: recalls }, { data: invoices }, { data: templates }] =
     await Promise.all([
-      supabase.from("practices").select("clinic_name").single(),
+      supabase.from("practices").select("clinic_name, google_maps_url").single(),
       supabase
         .from("appointments")
         .select("id, start_time, patients!inner(id, name, phone, appointment_reminders_enabled)")
@@ -42,6 +43,7 @@ export default async function FollowUpsPage() {
     ]);
 
   const clinicName = practice?.clinic_name ?? "العيادة";
+  const mapsUrl = practice?.google_maps_url ?? null;
 
   const appointmentItems: FollowUpItem[] = (appointments ?? []).map((a) => {
     const patient = a.patients as unknown as { id: string; name: string; phone: string | null };
@@ -55,7 +57,11 @@ export default async function FollowUpsPage() {
       phone: patient.phone,
       detail: `${date} — ${time}`,
       href: `/patients/${patient.id}`,
-      defaultMessage: `أهلاً ${patient.name}، تذكير بموعدك بتاريخ ${date} الساعة ${time} في ${clinicName}. بانتظارك!`,
+      defaultMessage: withClinicSignature(
+        `أهلاً ${patient.name}، تذكير بموعدك بتاريخ ${date} الساعة ${time}. بانتظارك! ✨`,
+        clinicName,
+        mapsUrl,
+      ),
     };
   });
 
@@ -68,7 +74,11 @@ export default async function FollowUpsPage() {
       phone: patient.phone,
       detail: `مستحقة منذ: ${r.recall_date}`,
       href: `/patients/${patient.id}`,
-      defaultMessage: `أهلاً ${patient.name}، حان وقت زيارتك الدورية لـ${clinicName}. يرجى التواصل معنا لتحديد موعد.`,
+      defaultMessage: withClinicSignature(
+        `أهلاً ${patient.name}، اشتقنالك! حان وقت زيارتك الدورية لفحص واطمينان دائم على صحة أسنانك. تواصل معنا لتحديد موعد يناسبك. 😊`,
+        clinicName,
+        mapsUrl,
+      ),
       completeAction: true as const,
     };
   });
@@ -83,7 +93,11 @@ export default async function FollowUpsPage() {
       phone: patient.phone,
       detail: `فاتورة ${inv.invoice_no} — متبقي ${remaining}`,
       href: `/invoices/${inv.id}`,
-      defaultMessage: `أهلاً ${patient.name}، نذكّرك بوجود مبلغ متبقي ${remaining} على فاتورة رقم ${inv.invoice_no} بـ${clinicName}. يرجى التواصل لتسوية الدفعة.`,
+      defaultMessage: withClinicSignature(
+        `أهلاً ${patient.name}، نذكّرك بوجود مبلغ متبقي ${remaining} على فاتورة رقم ${inv.invoice_no}. يرجى التواصل لتسوية الدفعة بأقرب وقت يناسبك.`,
+        clinicName,
+        mapsUrl,
+      ),
     };
   });
 

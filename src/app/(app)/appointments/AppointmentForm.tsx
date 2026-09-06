@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useEffect } from "react";
 import { addAppointment } from "./actions";
+import PatientSelect from "@/components/PatientSelect";
 
 type Patient = { id: string; name: string };
 type AppointmentType = { id: string; name: string; color: string };
@@ -34,16 +35,7 @@ export default function AppointmentForm({
       <h2 className="text-sm font-semibold text-ink">إضافة موعد جديد</h2>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <select name="patient_id" required defaultValue="" className={inputClass}>
-          <option value="" disabled>
-            اختر المريض
-          </option>
-          {patients.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <PatientSelect patients={patients} required className={inputClass} />
         <input name="notes" type="text" placeholder="ملاحظات" className={inputClass} />
         {types.length > 0 && (
           <select name="appointment_type_id" defaultValue="" className={inputClass}>

@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useEffect } from "react";
 import { addChartEntry } from "./actions";
+import PatientSelect from "@/components/PatientSelect";
 
 const inputClass =
   "rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-primary";
@@ -65,16 +66,7 @@ export default function ChartForm({
             </select>
           </>
         ) : (
-          <select name="patient_id" required defaultValue="" className={inputClass}>
-            <option value="" disabled>
-              المريض
-            </option>
-            {patients.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
+          <PatientSelect patients={patients} required className={inputClass} />
         )}
         <select name="tooth_number" required defaultValue={selectedTooth ?? ""} className={inputClass}>
           <option value="" disabled>

@@ -14,6 +14,7 @@ export default function ClinicInfoForm({
   taxNumber,
   licenseNumber,
   hidePatientIdentifiers,
+  googleMapsUrl,
 }: {
   clinicName: string;
   doctorName: string;
@@ -22,6 +23,7 @@ export default function ClinicInfoForm({
   taxNumber: string;
   licenseNumber: string;
   hidePatientIdentifiers: boolean;
+  googleMapsUrl: string;
 }) {
   const [state, formAction, pending] = useActionState(updateClinicInfo, null);
 
@@ -51,6 +53,16 @@ export default function ClinicInfoForm({
         <label className="flex flex-col gap-1 text-sm text-ink-muted">
           رقم إجازة مزاولة المهنة (النقابة)
           <input name="license_number" type="text" defaultValue={licenseNumber} className={inputClass} />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-ink-muted sm:col-span-2">
+          رابط موقع العيادة على خرائط جوجل (يُرفق تلقائياً برسائل واتساب)
+          <input
+            name="google_maps_url"
+            type="url"
+            placeholder="https://maps.app.goo.gl/..."
+            defaultValue={googleMapsUrl}
+            className={inputClass}
+          />
         </label>
       </div>
 

@@ -80,6 +80,7 @@ export default async function PatientProfilePage({
     { data: chartEntries },
     { data: labOrders },
     { data: templates },
+    { data: practice },
   ] = await Promise.all([
     supabase
       .from("appointments")
@@ -140,7 +141,11 @@ export default async function PatientProfilePage({
       .order("sent_date", { ascending: false })
       .limit(5),
     supabase.from("communication_templates").select("id, name, body").is("deleted_at", null).order("name"),
+    supabase.from("practices").select("clinic_name, google_maps_url").single(),
   ]);
+
+  const clinicName = practice?.clinic_name ?? "العيادة";
+  const mapsUrl = practice?.google_maps_url ?? null;
 
   let patientImages: PatientImage[] = [];
   if (tab === "imaging") {
@@ -183,7 +188,19 @@ export default async function PatientProfilePage({
           )}
         </div>
         <div className="flex flex-wrap gap-2">
-          <PatientWhatsappButton patientName={patient.name} phone={patient.phone} templates={templates ?? []} />
+          <Link
+            href={`/invoices?patient_id=${patient.id}`}
+            className="self-start rounded-lg border border-primary px-3 py-1.5 text-sm text-primary-strong transition-colors hover:bg-surface-alt"
+          >
+            إنشاء فاتورة
+          </Link>
+          <PatientWhatsappButton
+            patientName={patient.name}
+            phone={patient.phone}
+            templates={templates ?? []}
+            clinicName={clinicName}
+            mapsUrl={mapsUrl}
+          />
           <ReminderToggle
             enabled={patient.payment_reminders_enabled}
             onLabel="إيقاف متابعة الدفعات"
@@ -225,7 +242,7 @@ export default async function PatientProfilePage({
       {tab === "info" && (
         <>
           <PatientEditForm patient={patient} />
-          <IntakeLinkButton patientId={patient.id} phone={patient.phone} />
+          <IntakeLinkButton patientId={patient.id} phone={patient.phone} clinicName={clinicName} mapsUrl={mapsUrl} />
         </>
       )}
 

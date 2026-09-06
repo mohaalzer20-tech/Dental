@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { addLabOrder } from "./actions";
+import PatientSelect from "@/components/PatientSelect";
 
 const inputClass =
   "rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-primary";
@@ -47,22 +48,7 @@ export default function LabOrderForm({
     <form ref={formRef} action={handleSubmit} className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-5">
       <h2 className="text-sm font-semibold text-ink">إرسال أمر للمخبر</h2>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-        <select
-          name="patient_id"
-          required
-          value={patientId}
-          onChange={(e) => setPatientId(e.target.value)}
-          className={inputClass}
-        >
-          <option value="" disabled>
-            المريض
-          </option>
-          {patients.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <PatientSelect patients={patients} onChange={setPatientId} required className={inputClass} />
         <select name="lab_vendor_id" defaultValue="" className={inputClass}>
           <option value="">المخبر</option>
           {vendors.map((v) => (

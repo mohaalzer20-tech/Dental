@@ -5,13 +5,14 @@ import PatientsTable from "./PatientsTable";
 export default async function PatientsPage() {
   const supabase = await createClient();
 
-  const [{ data: patients }, { data: templates }] = await Promise.all([
+  const [{ data: patients }, { data: templates }, { data: practice }] = await Promise.all([
     supabase
       .from("patients")
       .select("id, name, phone, dob, created_at")
       .is("deleted_at", null)
       .order("created_at", { ascending: false }),
     supabase.from("communication_templates").select("id, name, body").is("deleted_at", null).order("name"),
+    supabase.from("practices").select("clinic_name, google_maps_url").single(),
   ]);
 
   return (
@@ -25,7 +26,12 @@ export default async function PatientsPage() {
 
       <PatientForm />
 
-      <PatientsTable patients={patients ?? []} templates={templates ?? []} />
+      <PatientsTable
+        patients={patients ?? []}
+        templates={templates ?? []}
+        clinicName={practice?.clinic_name ?? "العيادة"}
+        mapsUrl={practice?.google_maps_url ?? null}
+      />
     </div>
   );
 }

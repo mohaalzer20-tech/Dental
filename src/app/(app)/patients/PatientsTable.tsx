@@ -3,10 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import { BulkSendModal, type Recipient, type Template } from "@/components/WhatsappSend";
+import { withClinicSignature } from "@/lib/messageSignature";
 
 type Patient = { id: string; name: string; phone: string | null; dob: string | null };
 
-export default function PatientsTable({ patients, templates }: { patients: Patient[]; templates: Template[] }) {
+export default function PatientsTable({
+  patients,
+  templates,
+  clinicName,
+  mapsUrl,
+}: {
+  patients: Patient[];
+  templates: Template[];
+  clinicName: string;
+  mapsUrl?: string | null;
+}) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkOpen, setBulkOpen] = useState(false);
 
@@ -21,7 +32,11 @@ export default function PatientsTable({ patients, templates }: { patients: Patie
 
   const selectedPatients: Recipient[] = patients
     .filter((p) => selected.has(p.id))
-    .map((p) => ({ patientName: p.name, phone: p.phone, defaultMessage: `أهلاً ${p.name}،` }));
+    .map((p) => ({
+      patientName: p.name,
+      phone: p.phone,
+      defaultMessage: withClinicSignature(`أهلاً ${p.name}، كيف فيني ساعدك اليوم؟`, clinicName, mapsUrl),
+    }));
 
   return (
     <div className="flex flex-col gap-3">

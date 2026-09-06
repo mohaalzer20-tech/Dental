@@ -50,7 +50,7 @@ export default async function InvoicesPage({
         )}
       </div>
 
-      <InvoiceForm patients={patients ?? []} providers={providers ?? []} />
+      <InvoiceForm patients={patients ?? []} providers={providers ?? []} defaultPatientId={patient_id} />
 
       <div className="overflow-hidden rounded-xl border border-border bg-surface">
         <table className="w-full text-right text-sm">
