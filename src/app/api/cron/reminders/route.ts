@@ -42,7 +42,7 @@ async function logAndSend(
     return "skipped_no_phone";
   }
 
-  const result = await sendReminder(params.practiceId, params.phone, params.body);
+  const result = await sendReminder(params.phone, params.body);
   await supabase.from("message_log").insert({
     practice_id: params.practiceId,
     patient_id: params.patientId,

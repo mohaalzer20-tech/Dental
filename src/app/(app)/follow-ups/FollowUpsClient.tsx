@@ -4,7 +4,7 @@ import { Fragment, useState } from "react";
 import Link from "next/link";
 import { useTransition } from "react";
 import { markRecallCompleted } from "../appointments/actions";
-import { buildWhatsappLink } from "@/lib/whatsappLink";
+import { MessagePanel, BulkSendModal, type Template } from "@/components/WhatsappSend";
 
 export type FollowUpItem = {
   id: string;
@@ -16,19 +16,6 @@ export type FollowUpItem = {
   defaultMessage: string;
   completeAction?: true;
 };
-
-type Template = { id: string; name: string; body: string };
-
-function fillTemplate(body: string, patientName: string) {
-  return body.replace(/\{\{\s*name\s*\}\}/gi, patientName);
-}
-
-function messageOptions(item: FollowUpItem, templates: Template[]) {
-  return [
-    { label: "الرسالة الافتراضية", body: item.defaultMessage },
-    ...templates.map((t) => ({ label: t.name, body: fillTemplate(t.body, item.patientName) })),
-  ];
-}
 
 const TABS = [
   { key: "appointments", label: "المواعيد القادمة" },
@@ -104,7 +91,8 @@ export default function FollowUpsClient({
           <button
             type="button"
             onClick={() => setBulkOpen(true)}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary-strong"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            style={{ background: "#25D366" }}
           >
             إرسال للمحددين
           </button>
@@ -144,7 +132,8 @@ export default function FollowUpsClient({
                         <button
                           type="button"
                           onClick={() => setOpenRowId(openRowId === item.id ? null : item.id)}
-                          className="rounded-lg border border-border px-3 py-1.5 text-sm text-primary-strong transition-colors hover:border-primary"
+                          className="rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors"
+                          style={{ borderColor: "#25D366", color: "#25D366" }}
                         >
                           واتساب
                         </button>
@@ -155,7 +144,7 @@ export default function FollowUpsClient({
                   {openRowId === item.id && (
                     <tr className="border-t border-border bg-surface-alt">
                       <td colSpan={4} className="py-3">
-                        <MessagePanel item={item} templates={templates} onClose={() => setOpenRowId(null)} />
+                        <MessagePanel recipient={item} templates={templates} onClose={() => setOpenRowId(null)} />
                       </td>
                     </tr>
                   )}
@@ -171,160 +160,6 @@ export default function FollowUpsClient({
       {bulkOpen && (
         <BulkSendModal items={selectedItems} templates={templates} onClose={() => setBulkOpen(false)} />
       )}
-    </div>
-  );
-}
-
-function MessagePanel({
-  item,
-  templates,
-  onClose,
-}: {
-  item: FollowUpItem;
-  templates: Template[];
-  onClose: () => void;
-}) {
-  const options = messageOptions(item, templates);
-  const [optionIndex, setOptionIndex] = useState(0);
-  const [text, setText] = useState(options[0].body);
-
-  if (!item.phone) {
-    return <p className="px-2 text-sm text-danger">ما في رقم هاتف مسجّل لهذا المريض</p>;
-  }
-
-  return (
-    <div className="flex flex-col gap-3 px-2">
-      <select
-        value={optionIndex}
-        onChange={(e) => {
-          const idx = Number(e.target.value);
-          setOptionIndex(idx);
-          setText(options[idx].body);
-        }}
-        className="rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink"
-      >
-        {options.map((o, i) => (
-          <option key={i} value={i}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        rows={3}
-        className="rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink"
-      />
-      <div className="flex gap-2">
-        <a
-          href={buildWhatsappLink(item.phone, text)}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={onClose}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary-strong"
-        >
-          فتح واتساب
-        </a>
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-lg border border-border px-4 py-2 text-sm text-ink-muted transition-colors hover:text-ink"
-        >
-          إلغاء
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function BulkSendModal({
-  items,
-  templates,
-  onClose,
-}: {
-  items: FollowUpItem[];
-  templates: Template[];
-  onClose: () => void;
-}) {
-  const [index, setIndex] = useState(0);
-  const item = items[index];
-  const options = messageOptions(item, templates);
-  const [optionIndex, setOptionIndex] = useState(0);
-  const [text, setText] = useState(options[0].body);
-
-  function goTo(newIndex: number) {
-    setIndex(newIndex);
-    setOptionIndex(0);
-    setText(messageOptions(items[newIndex], templates)[0].body);
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-xl border border-border bg-surface p-5 shadow-lg">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-ink">
-            {index + 1} من {items.length} — {item.patientName}
-          </h2>
-          <button type="button" onClick={onClose} className="text-sm text-ink-muted hover:text-ink">
-            إغلاق
-          </button>
-        </div>
-
-        {!item.phone ? (
-          <p className="text-sm text-danger">ما في رقم هاتف مسجّل لهذا المريض</p>
-        ) : (
-          <div className="flex flex-col gap-3">
-            <select
-              value={optionIndex}
-              onChange={(e) => {
-                const idx = Number(e.target.value);
-                setOptionIndex(idx);
-                setText(options[idx].body);
-              }}
-              className="rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink"
-            >
-              {options.map((o, i) => (
-                <option key={i} value={i}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              rows={3}
-              className="rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink"
-            />
-            <a
-              href={buildWhatsappLink(item.phone, text)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg bg-primary px-4 py-2 text-center text-sm font-medium text-on-primary transition-colors hover:bg-primary-strong"
-            >
-              فتح واتساب
-            </a>
-          </div>
-        )}
-
-        <div className="mt-4 flex justify-between">
-          <button
-            type="button"
-            disabled={index === 0}
-            onClick={() => goTo(index - 1)}
-            className="rounded-lg border border-border px-3 py-1.5 text-sm text-ink-muted disabled:opacity-40"
-          >
-            السابق
-          </button>
-          <button
-            type="button"
-            disabled={index === items.length - 1}
-            onClick={() => goTo(index + 1)}
-            className="rounded-lg border border-border px-3 py-1.5 text-sm text-ink-muted disabled:opacity-40"
-          >
-            التالي
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

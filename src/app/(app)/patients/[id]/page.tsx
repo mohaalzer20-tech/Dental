@@ -6,6 +6,7 @@ import PatientEditForm from "./PatientEditForm";
 import ReminderToggle from "./ReminderToggle";
 import { conditionLabels } from "../../clinical/conditionLabels";
 import { appointmentStatusLabels, appointmentStatusBadgeClass } from "../../appointments/statusStyles";
+import PatientWhatsappButton from "./PatientWhatsappButton";
 
 const invoiceStatusLabels: Record<string, string> = {
   unpaid: "غير مدفوعة",
@@ -74,6 +75,7 @@ export default async function PatientProfilePage({
     { data: prescriptions },
     { data: chartEntries },
     { data: labOrders },
+    { data: templates },
   ] = await Promise.all([
     supabase
       .from("appointments")
@@ -133,6 +135,7 @@ export default async function PatientProfilePage({
       .is("deleted_at", null)
       .order("sent_date", { ascending: false })
       .limit(5),
+    supabase.from("communication_templates").select("id, name, body").is("deleted_at", null).order("name"),
   ]);
 
   return (
@@ -148,6 +151,7 @@ export default async function PatientProfilePage({
           {patient.notes && <p className="mt-1 text-sm text-ink-muted">ملاحظات: {patient.notes}</p>}
         </div>
         <div className="flex flex-wrap gap-2">
+          <PatientWhatsappButton patientName={patient.name} phone={patient.phone} templates={templates ?? []} />
           <ReminderToggle
             enabled={patient.payment_reminders_enabled}
             onLabel="إيقاف متابعة الدفعات"

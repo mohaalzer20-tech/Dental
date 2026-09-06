@@ -1,15 +1,18 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PatientForm from "./PatientForm";
+import PatientsTable from "./PatientsTable";
 
 export default async function PatientsPage() {
   const supabase = await createClient();
 
-  const { data: patients } = await supabase
-    .from("patients")
-    .select("id, name, phone, dob, created_at")
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false });
+  const [{ data: patients }, { data: templates }] = await Promise.all([
+    supabase
+      .from("patients")
+      .select("id, name, phone, dob, created_at")
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false }),
+    supabase.from("communication_templates").select("id, name, body").is("deleted_at", null).order("name"),
+  ]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -22,38 +25,7 @@ export default async function PatientsPage() {
 
       <PatientForm />
 
-      <div className="overflow-hidden rounded-xl border border-border bg-surface">
-        <table className="w-full text-right text-sm">
-          <thead className="bg-surface-alt text-ink-muted">
-            <tr>
-              <th className="px-4 py-2.5 font-medium">الاسم</th>
-              <th className="px-4 py-2.5 font-medium">الهاتف</th>
-              <th className="px-4 py-2.5 font-medium">تاريخ الميلاد</th>
-            </tr>
-          </thead>
-          <tbody>
-            {patients?.length ? (
-              patients.map((p) => (
-                <tr key={p.id} className="border-t border-border">
-                  <td className="px-4 py-2.5 text-ink">
-                    <Link href={`/patients/${p.id}`} className="underline underline-offset-2">
-                      {p.name}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-2.5 font-mono text-ink-muted">{p.phone ?? "—"}</td>
-                  <td className="px-4 py-2.5 font-mono text-ink-muted">{p.dob ?? "—"}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={3} className="px-4 py-8 text-center text-ink-muted">
-                  ما في مرضى بعد — أضف أول مريض من النموذج فوق
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <PatientsTable patients={patients ?? []} templates={templates ?? []} />
     </div>
   );
 }

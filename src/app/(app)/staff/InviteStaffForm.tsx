@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { inviteStaff } from "./actions";
+import { buildWhatsappLink } from "@/lib/whatsappLink";
 
 const inputClass =
   "rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-primary";
@@ -12,11 +13,10 @@ export default function InviteStaffForm() {
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const fullInviteUrl = state?.inviteUrl ? origin + state.inviteUrl : "";
-  const waHref = fullInviteUrl
-    ? `https://wa.me/${phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-        `تم إضافتك كموظف بالعيادة. لتفعيل حسابك افتح هذا الرابط: ${fullInviteUrl}`,
-      )}`
-    : "";
+  const waHref =
+    fullInviteUrl && phone
+      ? buildWhatsappLink(phone, `تم إضافتك كموظف بالعيادة. لتفعيل حسابك افتح هذا الرابط: ${fullInviteUrl}`)
+      : "";
 
   return (
     <form action={formAction} className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-5">
