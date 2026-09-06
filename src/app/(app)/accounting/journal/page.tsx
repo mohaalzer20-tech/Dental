@@ -1,11 +1,20 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import StatusPill, { type StatusTone } from "@/components/StatusPill";
 import JournalEntryForm from "./JournalEntryForm";
 
 const sourceLabels: Record<string, string> = {
   manual: "يدوي",
   payment: "دفعة",
   expense: "مصروف",
+  reversal: "عكس قيد",
+};
+
+const sourceTone: Record<string, StatusTone> = {
+  manual: "muted",
+  payment: "primary",
+  expense: "accent",
+  reversal: "danger",
 };
 
 export default async function JournalPage() {
@@ -25,6 +34,9 @@ export default async function JournalPage() {
       <div>
         <p className="font-mono text-xs tracking-wide text-ink-muted">{entries?.length ?? 0} قيد</p>
         <h1 className="mt-1 font-display text-2xl font-bold text-ink">القيود اليومية</h1>
+        <p className="mt-1 text-sm text-ink-muted">
+          معظم القيود تُسجَّل تلقائياً (دفعة، مصروف...) — هاي الصفحة للحالات اللي ما إلها مصدر آلي بالنظام.
+        </p>
       </div>
 
       <JournalEntryForm accounts={accounts ?? []} />
@@ -52,7 +64,11 @@ export default async function JournalPage() {
                     {new Date(e.entry_date).toLocaleDateString("ar-SY-u-nu-latn")}
                   </td>
                   <td className="px-4 py-2.5 text-ink">{e.memo ?? "—"}</td>
-                  <td className="px-4 py-2.5 text-ink-muted">{sourceLabels[e.source_type] ?? e.source_type}</td>
+                  <td className="px-4 py-2.5">
+                    <StatusPill tone={sourceTone[e.source_type] ?? "muted"}>
+                      {sourceLabels[e.source_type] ?? e.source_type}
+                    </StatusPill>
+                  </td>
                 </tr>
               ))
             ) : (

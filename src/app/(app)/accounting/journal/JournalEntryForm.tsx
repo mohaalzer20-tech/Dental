@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useState } from "react";
 import { createJournalEntry } from "./actions";
+import StatusPill from "@/components/StatusPill";
 
 const inputClass =
   "rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-primary";
@@ -14,6 +15,7 @@ const emptyLine = (): Line => ({ account_id: "", debit: "", credit: "", descript
 export default function JournalEntryForm({ accounts }: { accounts: Account[] }) {
   const [state, formAction, pending] = useActionState(createJournalEntry, null);
   const [lines, setLines] = useState<Line[]>([emptyLine(), emptyLine()]);
+  const [showHelp, setShowHelp] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   function updateLine(index: number, patch: Partial<Line>) {
@@ -46,7 +48,32 @@ export default function JournalEntryForm({ accounts }: { accounts: Account[] }) 
       action={formAction}
       className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-5"
     >
-      <h2 className="text-sm font-semibold text-ink">قيد جديد</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-ink">قيد جديد</h2>
+        <button
+          type="button"
+          onClick={() => setShowHelp((v) => !v)}
+          className="text-xs text-primary-strong underline underline-offset-2"
+        >
+          {showHelp ? "إخفاء الشرح" : "؟ شو يعني مدين ودائن"}
+        </button>
+      </div>
+
+      {showHelp && (
+        <div className="rounded-lg border border-border bg-surface-alt p-3 text-xs leading-relaxed text-ink-muted">
+          <p className="mb-1 font-medium text-ink">مثال بسيط: استلمت 500 نقداً من مريض كدفعة</p>
+          <p>
+            <span className="text-primary-strong">مدين</span> (الحساب اللي زادت فيه المصاري عندك): الصندوق — 500
+          </p>
+          <p>
+            <span className="text-primary-strong">دائن</span> (الحساب اللي يوضّح مصدر هالمبلغ): إيرادات الخدمات — 500
+          </p>
+          <p className="mt-1">
+            القاعدة العامة: كل قيد لازم يكون فيه سطر مدين وسطر دائن على الأقل، ومجموع المدين = مجموع الدائن. أغلب
+            القيود (الدفعات، المصروفات) تتسجل تلقائياً — هاي الصفحة للحالات الاستثنائية فقط.
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <input name="entry_date" type="date" className={inputClass} />
@@ -118,9 +145,7 @@ export default function JournalEntryForm({ accounts }: { accounts: Account[] }) 
         <p className="text-ink-muted">
           إجمالي الدائن: <span className="font-mono text-ink">{totalCredit.toFixed(2)}</span>
         </p>
-        <p className={balanced ? "text-primary-strong" : "text-danger"}>
-          {balanced ? "القيد متوازن" : "القيد غير متوازن"}
-        </p>
+        <StatusPill tone={balanced ? "primary" : "danger"}>{balanced ? "القيد متوازن ✓" : "القيد غير متوازن"}</StatusPill>
       </div>
 
       <input type="hidden" name="lines" value={linesPayload} />
