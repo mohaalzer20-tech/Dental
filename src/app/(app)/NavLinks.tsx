@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import type { ComponentType } from "react";
 
 type NavItem = { href: string; label: string; icon: ComponentType<{ className?: string }> };
-type NavGroup = { label: string; items: NavItem[] };
+type NavGroup = { label: string; hint?: string; items: NavItem[] };
 
 const groups: NavGroup[] = [
   {
@@ -14,14 +14,14 @@ const groups: NavGroup[] = [
   },
   {
     label: "السريري",
+    hint: "التشخيص ثم الخطة ثم التنفيذ الفعلي",
     items: [
       { href: "/patients", label: "المرضى", icon: UsersIcon },
       { href: "/appointments", label: "المواعيد", icon: CalendarIcon },
-      { href: "/clinical/treatment-plans", label: "خطط العلاج", icon: ClipboardIcon },
-      { href: "/clinical/treatments", label: "المعالجات", icon: ToothIcon },
+      { href: "/clinical/dental-chart", label: "رسم الأسنان (تشخيص)", icon: GridIcon },
+      { href: "/clinical/treatment-plans", label: "خطط العلاج (اقتراح)", icon: ClipboardIcon },
+      { href: "/clinical/treatments", label: "المعالجات (تنفيذ)", icon: ToothIcon },
       { href: "/clinical/prescriptions", label: "الوصفات", icon: PillIcon },
-      { href: "/clinical/dental-chart", label: "رسم الأسنان", icon: GridIcon },
-      { href: "/clinical/procedures", label: "الإجراءات", icon: ListIcon },
       { href: "/lab", label: "المختبر", icon: FlaskIcon },
     ],
   },
@@ -43,6 +43,7 @@ const groups: NavGroup[] = [
       { href: "/inventory", label: "المخزون", icon: BoxIcon },
       { href: "/staff", label: "الموظفون", icon: UserGearIcon },
       { href: "/marketing", label: "التسويق", icon: MegaphoneIcon },
+      { href: "/clinical/procedures", label: "كتالوج الإجراءات (الأسعار)", icon: ListIcon },
       { href: "/settings", label: "الإعدادات", icon: SettingsIcon },
     ],
   },
@@ -60,7 +61,10 @@ export default function NavLinks() {
       {groups.map((group) => (
         <div key={group.label || "main"} className="flex flex-col gap-1">
           {group.label && (
-            <p className="px-3 pb-1 text-[11px] font-medium text-ink-muted">{group.label}</p>
+            <div className="px-3 pb-1">
+              <p className="text-[11px] font-medium text-ink-muted">{group.label}</p>
+              {group.hint && <p className="text-[10px] text-ink-muted/70">{group.hint}</p>}
+            </div>
           )}
           {group.items.map((item) => {
             const active = pathname === item.href;

@@ -8,6 +8,7 @@ export async function addPatient(_prevState: { error: string } | null, formData:
   const name = String(formData.get("name") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const dob = String(formData.get("dob") ?? "").trim();
+  const nationalId = String(formData.get("national_id") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
 
   if (!name) {
@@ -20,6 +21,7 @@ export async function addPatient(_prevState: { error: string } | null, formData:
     name,
     phone: phone || null,
     dob: dob || null,
+    national_id: nationalId || null,
     notes: notes || null,
   });
 
@@ -36,6 +38,7 @@ export async function updatePatient(_prevState: { error: string } | null, formDa
   const name = String(formData.get("name") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const dob = String(formData.get("dob") ?? "").trim();
+  const nationalId = String(formData.get("national_id") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
 
   if (!name) {
@@ -45,7 +48,7 @@ export async function updatePatient(_prevState: { error: string } | null, formDa
   const supabase = await createClient();
   const { error } = await supabase
     .from("patients")
-    .update({ name, phone: phone || null, dob: dob || null, notes: notes || null })
+    .update({ name, phone: phone || null, dob: dob || null, national_id: nationalId || null, notes: notes || null })
     .eq("id", id);
 
   if (error) {

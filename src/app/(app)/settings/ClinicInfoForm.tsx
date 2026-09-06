@@ -13,6 +13,7 @@ export default function ClinicInfoForm({
   phone,
   taxNumber,
   licenseNumber,
+  hidePatientIdentifiers,
 }: {
   clinicName: string;
   doctorName: string;
@@ -20,6 +21,7 @@ export default function ClinicInfoForm({
   phone: string;
   taxNumber: string;
   licenseNumber: string;
+  hidePatientIdentifiers: boolean;
 }) {
   const [state, formAction, pending] = useActionState(updateClinicInfo, null);
 
@@ -51,6 +53,16 @@ export default function ClinicInfoForm({
           <input name="license_number" type="text" defaultValue={licenseNumber} className={inputClass} />
         </label>
       </div>
+
+      <label className="flex items-center gap-2 text-sm text-ink-muted">
+        <input
+          name="hide_patient_identifiers_on_documents"
+          type="checkbox"
+          defaultChecked={hidePatientIdentifiers}
+          className="h-4 w-4 rounded border-border"
+        />
+        إخفاء رقم الهوية وتاريخ الميلاد عن الفواتير والوصفات الطبية عند الطباعة
+      </label>
 
       {state?.error && <p className="text-sm text-danger">{state.error}</p>}
 

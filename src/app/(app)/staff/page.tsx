@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import DeleteButton from "@/components/DeleteButton";
 import ShiftForm from "./ShiftForm";
 import CommissionRateInput from "./CommissionRateInput";
+import InviteStaffForm from "./InviteStaffForm";
+import { staffStatusLabels } from "./statusLabels";
 import { deleteShift } from "./actions";
 
 const roleLabels: Record<string, string> = {
@@ -15,6 +17,14 @@ const days = ["الأحد", "الإثنين", "الثلاثاء", "الأربع�
 
 export default async function StaffPage() {
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: me } = user
+    ? await supabase.from("users").select("role").eq("id", user.id).single()
+    : { data: null };
+  const isDoctor = me?.role === "doctor";
 
   const [{ data: staff }, { data: shifts }, { data: commissions }] = await Promise.all([
     supabase.from("users").select("id, full_name, role, email, commission_rate, status").order("full_name"),
@@ -33,6 +43,8 @@ export default async function StaffPage() {
         <h1 className="mt-1 text-2xl font-bold text-ink">الموظفون</h1>
       </div>
 
+      {isDoctor && <InviteStaffForm />}
+
       <div className="overflow-hidden rounded-xl border border-border bg-surface">
         <table className="w-full text-right text-sm">
           <thead className="bg-surface-alt text-ink-muted">
@@ -40,6 +52,7 @@ export default async function StaffPage() {
               <th className="px-4 py-2.5 font-medium">الاسم</th>
               <th className="px-4 py-2.5 font-medium">الدور</th>
               <th className="px-4 py-2.5 font-medium">البريد</th>
+              <th className="px-4 py-2.5 font-medium">الحالة</th>
               <th className="px-4 py-2.5 font-medium">نسبة العمولة</th>
             </tr>
           </thead>
@@ -53,6 +66,7 @@ export default async function StaffPage() {
                 </td>
                 <td className="px-4 py-2.5 text-ink-muted">{roleLabels[s.role] ?? s.role}</td>
                 <td className="px-4 py-2.5 font-mono text-ink-muted">{s.email}</td>
+                <td className="px-4 py-2.5 text-ink-muted">{staffStatusLabels[s.status] ?? s.status}</td>
                 <td className="px-4 py-2.5">
                   <CommissionRateInput userId={s.id} initialRate={s.commission_rate} />
                 </td>

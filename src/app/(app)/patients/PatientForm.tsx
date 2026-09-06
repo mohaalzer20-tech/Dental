@@ -28,6 +28,7 @@ export default function PatientForm() {
         <input name="name" type="text" placeholder="الاسم" required className={inputClass} />
         <input name="phone" type="tel" placeholder="رقم الهاتف" className={inputClass} />
         <input name="dob" type="date" placeholder="تاريخ الميلاد" className={inputClass} />
+        <input name="national_id" type="text" placeholder="رقم الهوية" className={inputClass} />
         <input name="notes" type="text" placeholder="ملاحظات" className={inputClass} />
       </div>
 

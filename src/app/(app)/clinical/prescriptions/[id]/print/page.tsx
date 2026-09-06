@@ -8,10 +8,13 @@ export default async function PrescriptionPrintPage({ params }: { params: Promis
   const supabase = await createClient();
 
   const [{ data: practice }, { data: prescription }, { data: items }] = await Promise.all([
-    supabase.from("practices").select("clinic_name, doctor_name, address, phone, license_number").single(),
+    supabase
+      .from("practices")
+      .select("clinic_name, doctor_name, address, phone, license_number, hide_patient_identifiers_on_documents")
+      .single(),
     supabase
       .from("prescriptions")
-      .select("id, diagnosis, created_at, valid_until, patients(name, phone, dob)")
+      .select("id, diagnosis, created_at, valid_until, patients(name, phone, dob, national_id)")
       .eq("id", id)
       .is("deleted_at", null)
       .single(),
@@ -22,7 +25,13 @@ export default async function PrescriptionPrintPage({ params }: { params: Promis
     return <p className="text-ink-muted">الوصفة غير موجودة</p>;
   }
 
-  const patient = prescription.patients as unknown as { name: string; phone: string | null; dob: string | null } | null;
+  const patient = prescription.patients as unknown as {
+    name: string;
+    phone: string | null;
+    dob: string | null;
+    national_id: string | null;
+  } | null;
+  const hideIdentifiers = practice?.hide_patient_identifiers_on_documents ?? false;
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 print:max-w-none">
@@ -46,7 +55,10 @@ export default async function PrescriptionPrintPage({ params }: { params: Promis
       <div className="rounded-xl border border-border p-4 text-sm">
         <p className="text-ink">المريض: {patient?.name ?? "—"}</p>
         {patient?.phone && <p className="text-ink-muted">الهاتف: {patient.phone}</p>}
-        {patient?.dob && <p className="text-ink-muted">تاريخ الميلاد: {patient.dob}</p>}
+        {!hideIdentifiers && patient?.dob && <p className="text-ink-muted">تاريخ الميلاد: {patient.dob}</p>}
+        {!hideIdentifiers && patient?.national_id && (
+          <p className="text-ink-muted">رقم الهوية: {patient.national_id}</p>
+        )}
         {prescription.diagnosis && <p className="mt-1 text-ink-muted">التشخيص: {prescription.diagnosis}</p>}
       </div>
 

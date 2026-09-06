@@ -1,16 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import StaffStatusToggle from "./StaffStatusToggle";
+import { staffStatusLabels } from "../statusLabels";
 
 const roleLabels: Record<string, string> = {
   doctor: "طبيب",
   assistant: "مساعد",
   reception: "استقبال",
-};
-
-const statusLabels: Record<string, string> = {
-  pending: "بانتظار التفعيل",
-  active: "نشط",
-  disabled: "معطّل",
 };
 
 const days = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
@@ -57,7 +52,7 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
           <p className="font-mono text-xs tracking-wide text-ink-muted">ملف الموظف</p>
           <h1 className="mt-1 text-2xl font-bold text-ink">{member.full_name}</h1>
           <p className="mt-1 text-sm text-ink-muted">
-            {roleLabels[member.role] ?? member.role} — {member.email} — {statusLabels[member.status] ?? member.status}
+            {roleLabels[member.role] ?? member.role} — {member.email} — {staffStatusLabels[member.status] ?? member.status}
           </p>
         </div>
         <StaffStatusToggle id={member.id} status={member.status} />

@@ -1,7 +1,86 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { randomUUID } from "crypto";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
+
+const INVITE_TTL_HOURS = 48;
+
+export async function inviteStaff(
+  _prevState: { error: string; inviteUrl?: string } | null,
+  formData: FormData,
+) {
+  const fullName = String(formData.get("full_name") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const role = String(formData.get("role") ?? "");
+
+  if (!fullName || !email || !["assistant", "reception"].includes(role)) {
+    return { error: "الرجاء تعبئة الاسم والإيميل واختيار الدور" };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "غير مصرح" };
+
+  const { data: me } = await supabase.from("users").select("role, practice_id").eq("id", user.id).single();
+  if (!me || me.role !== "doctor") {
+    return { error: "دعوة الموظفين متاحة للطبيب فقط" };
+  }
+
+  const service = createServiceClient();
+  const token = randomUUID();
+  const expiresAt = new Date(Date.now() + INVITE_TTL_HOURS * 60 * 60 * 1000).toISOString();
+
+  // موظف سبق دُعي بنفس الإيميل ولسع ما فعّل حسابه — نولّد له رابط جديد بدل خطأ "إيميل مكرر"
+  const { data: existing } = await service
+    .from("users")
+    .select("id, status, practice_id")
+    .eq("email", email)
+    .maybeSingle();
+
+  let userId: string;
+
+  if (existing) {
+    if (existing.practice_id !== me.practice_id || existing.status !== "pending") {
+      return { error: "هذا الإيميل مستخدم مسبقاً" };
+    }
+    userId = existing.id;
+    await service
+      .from("users")
+      .update({ full_name: fullName, role, invite_token: token, invite_token_expires_at: expiresAt })
+      .eq("id", userId);
+  } else {
+    const { data: created, error: createError } = await service.auth.admin.createUser({
+      email,
+      password: randomUUID(),
+      email_confirm: true,
+    });
+    if (createError || !created.user) {
+      return { error: "تعذر إنشاء حساب الموظف: " + (createError?.message ?? "") };
+    }
+    userId = created.user.id;
+
+    const { error: insertError } = await service.from("users").insert({
+      id: userId,
+      practice_id: me.practice_id,
+      role,
+      full_name: fullName,
+      email,
+      status: "pending",
+      invite_token: token,
+      invite_token_expires_at: expiresAt,
+    });
+    if (insertError) {
+      return { error: "تعذر تسجيل الموظف: " + insertError.message };
+    }
+  }
+
+  revalidatePath("/staff");
+  return { error: "", inviteUrl: `/staff/accept-invite/${token}` };
+}
 
 export async function updateCommissionRate(_prevState: { error: string } | null, formData: FormData) {
   const userId = String(formData.get("user_id") ?? "");

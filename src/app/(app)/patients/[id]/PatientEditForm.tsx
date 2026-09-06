@@ -6,7 +6,14 @@ import { updatePatient } from "../actions";
 const inputClass =
   "rounded-lg border border-border bg-bg px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-primary";
 
-type Patient = { id: string; name: string; phone: string | null; dob: string | null; notes: string | null };
+type Patient = {
+  id: string;
+  name: string;
+  phone: string | null;
+  dob: string | null;
+  national_id: string | null;
+  notes: string | null;
+};
 
 export default function PatientEditForm({ patient }: { patient: Patient }) {
   const [editing, setEditing] = useState(false);
@@ -44,6 +51,12 @@ export default function PatientEditForm({ patient }: { patient: Patient }) {
         <input name="name" defaultValue={patient.name} placeholder="الاسم" required className={inputClass} />
         <input name="phone" defaultValue={patient.phone ?? ""} placeholder="رقم الهاتف" className={inputClass} />
         <input name="dob" type="date" defaultValue={patient.dob ?? ""} className={inputClass} />
+        <input
+          name="national_id"
+          defaultValue={patient.national_id ?? ""}
+          placeholder="رقم الهوية"
+          className={inputClass}
+        />
         <input name="notes" defaultValue={patient.notes ?? ""} placeholder="ملاحظات" className={inputClass} />
       </div>
 

@@ -8,11 +8,14 @@ export default async function InvoicePrintPage({ params }: { params: Promise<{ i
   const supabase = await createClient();
 
   const [{ data: practice }, { data: invoice }, { data: items }] = await Promise.all([
-    supabase.from("practices").select("clinic_name, doctor_name, address, phone, tax_number").single(),
+    supabase
+      .from("practices")
+      .select("clinic_name, doctor_name, address, phone, tax_number, hide_patient_identifiers_on_documents")
+      .single(),
     supabase
       .from("invoices")
       .select(
-        "id, invoice_no, created_at, subtotal, discount_amount, total_amount, paid_amount, patients(name, phone, dob)",
+        "id, invoice_no, created_at, subtotal, discount_amount, total_amount, paid_amount, patients(name, phone, dob, national_id)",
       )
       .eq("id", id)
       .is("deleted_at", null)
@@ -24,7 +27,13 @@ export default async function InvoicePrintPage({ params }: { params: Promise<{ i
     return <p className="text-ink-muted">الفاتورة غير موجودة</p>;
   }
 
-  const patient = invoice.patients as unknown as { name: string; phone: string | null; dob: string | null } | null;
+  const patient = invoice.patients as unknown as {
+    name: string;
+    phone: string | null;
+    dob: string | null;
+    national_id: string | null;
+  } | null;
+  const hideIdentifiers = practice?.hide_patient_identifiers_on_documents ?? false;
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 print:max-w-none">
@@ -43,7 +52,10 @@ export default async function InvoicePrintPage({ params }: { params: Promise<{ i
       <div className="rounded-xl border border-border p-4 text-sm">
         <p className="text-ink">المريض: {patient?.name ?? "—"}</p>
         {patient?.phone && <p className="text-ink-muted">الهاتف: {patient.phone}</p>}
-        {patient?.dob && <p className="text-ink-muted">تاريخ الميلاد: {patient.dob}</p>}
+        {!hideIdentifiers && patient?.dob && <p className="text-ink-muted">تاريخ الميلاد: {patient.dob}</p>}
+        {!hideIdentifiers && patient?.national_id && (
+          <p className="text-ink-muted">رقم الهوية: {patient.national_id}</p>
+        )}
       </div>
 
       <table className="w-full text-right text-sm">

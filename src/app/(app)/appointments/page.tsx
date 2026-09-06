@@ -9,9 +9,9 @@ import { deleteAppointment } from "./actions";
 export default async function AppointmentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ patient_id?: string }>;
+  searchParams: Promise<{ patient_id?: string; view?: string }>;
 }) {
-  const { patient_id } = await searchParams;
+  const { patient_id, view = "active" } = await searchParams;
   const supabase = await createClient();
 
   let appointmentsQuery = supabase
@@ -20,6 +20,8 @@ export default async function AppointmentsPage({
     .is("deleted_at", null)
     .order("start_time", { ascending: true });
   if (patient_id) appointmentsQuery = appointmentsQuery.eq("patient_id", patient_id);
+  if (view === "cancelled") appointmentsQuery = appointmentsQuery.eq("status", "cancelled");
+  else if (view !== "all") appointmentsQuery = appointmentsQuery.neq("status", "cancelled");
 
   const [{ data: appointments }, { data: patients }] = await Promise.all([
     appointmentsQuery,
@@ -42,6 +44,30 @@ export default async function AppointmentsPage({
             مفلترة لـ {filteredPatientName} — <Link href="/appointments" className="underline underline-offset-2">إزالة الفلتر</Link>
           </p>
         )}
+        <div className="mt-3 flex gap-2 text-sm">
+          {[
+            { key: "active", label: "المواعيد" },
+            { key: "cancelled", label: "الملغاة" },
+            { key: "all", label: "الكل" },
+          ].map((tab) => {
+            const params = new URLSearchParams();
+            if (patient_id) params.set("patient_id", patient_id);
+            if (tab.key !== "active") params.set("view", tab.key);
+            const qs = params.toString();
+            const active = view === tab.key;
+            return (
+              <Link
+                key={tab.key}
+                href={qs ? `/appointments?${qs}` : "/appointments"}
+                className={`rounded-lg px-3 py-1.5 transition-colors ${
+                  active ? "bg-primary text-on-primary" : "border border-border text-ink-muted hover:bg-surface-alt"
+                }`}
+              >
+                {tab.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       <AppointmentForm patients={patients ?? []} />
@@ -86,7 +112,13 @@ export default async function AppointmentsPage({
                       <RecallDateInput id={a.id} recallDate={a.recall_date} />
                     </td>
                     <td className="px-4 py-2.5">
-                      <DeleteButton action={deleteAppointment.bind(null, a.id)} />
+                      {a.status === "cancelled" && (
+                        <DeleteButton
+                          action={deleteAppointment.bind(null, a.id)}
+                          label="حذف نهائي"
+                          confirmMessage="هذا حذف نهائي ويخفي الموعد من ملف المريض بالكامل. للإلغاء العادي فقط، استخدم قائمة الحالة. متابعة؟"
+                        />
+                      )}
                     </td>
                   </tr>
                 );
@@ -94,7 +126,7 @@ export default async function AppointmentsPage({
             ) : (
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-ink-muted">
-                  ما في مواعيد بعد — أضف أول موعد من النموذج فوق
+                  {view === "cancelled" ? "ما في مواعيد ملغاة" : "ما في مواعيد بعد — أضف أول موعد من النموذج فوق"}
                 </td>
               </tr>
             )}

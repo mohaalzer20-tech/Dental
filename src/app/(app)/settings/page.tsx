@@ -10,7 +10,7 @@ export default async function SettingsPage() {
     supabase
       .from("practices")
       .select(
-        "id, clinic_name, doctor_name, address, phone, email, tax_number, license_number, currency, default_cash_account_id, default_bank_account_id, default_revenue_account_id",
+        "id, clinic_name, doctor_name, address, phone, email, tax_number, license_number, currency, default_cash_account_id, default_bank_account_id, default_revenue_account_id, hide_patient_identifiers_on_documents",
       )
       .single(),
     supabase.from("chart_of_accounts").select("id, code, name, type").eq("is_active", true).order("code"),
@@ -51,6 +51,7 @@ export default async function SettingsPage() {
           phone={practice?.phone ?? ""}
           taxNumber={practice?.tax_number ?? ""}
           licenseNumber={practice?.license_number ?? ""}
+          hidePatientIdentifiers={practice?.hide_patient_identifiers_on_documents ?? false}
         />
         <p className="mt-3 text-sm text-ink-muted">البريد: {practice?.email}</p>
       </div>
